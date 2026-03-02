@@ -1,0 +1,44 @@
+package layouts
+
+import (
+	"time"
+	"vertex/ui/modules"
+)
+
+templ Footer() {
+	<footer class="">
+		<footer class="">
+			<div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
+				<nav class="-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6" aria-label="Footer">
+					<a href="/" class="text-gray-600 hover:text-gray-900">Home</a>
+				</nav>
+				<p class="mt-10 text-center text-sm/6 text-gray-600">
+					&copy; { time.Now().Year() } Tesseract Systems Inc. All rights reserved.
+				</p>
+			</div>
+		</footer>
+	</footer>
+}
+
+templ Header() {
+	<head class="flex">
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+		<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+		<link href="/css/output.css" rel="stylesheet"/>
+		<link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"/>
+		@modules.Navbar()
+	</head>
+}
+
+templ BaseLayout() {
+	<!DOCTYPE html>
+	<html lang="en">
+		@Header()
+		<body>
+			{ children... }
+		</body>
+		@Footer()
+	</html>
+}

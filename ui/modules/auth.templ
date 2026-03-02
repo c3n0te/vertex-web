@@ -1,0 +1,67 @@
+package modules
+
+import (
+	"vertex/ui/components/button"
+	"vertex/ui/components/card"
+	"vertex/ui/components/form"
+	"vertex/ui/components/input"
+)
+
+templ SignIn001() {
+	<div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+		@card.Card(card.Props{
+			Class: "w-full max-w-sm",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					Sign in to your account
+				}
+				@card.Description() {
+					Enter your email and password
+				}
+			}
+			@card.Content(card.ContentProps{
+				Class: "space-y-4",
+			}) {
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "sign-in-001-email",
+					}) {
+						Email
+					}
+					@input.Input(input.Props{
+						ID:          "sign-in-001-email",
+						Type:        "email",
+						Placeholder: "name@example.com",
+					})
+				}
+				@form.Item() {
+					@form.Label(form.LabelProps{
+						For: "sign-in-001-password",
+					}) {
+						Password
+					}
+					@input.Input(input.Props{
+						ID:          "sign-in-001-password",
+						Type:        "password",
+						Placeholder: "••••••••",
+					})
+				}
+			}
+			@card.Footer(card.FooterProps{
+				Class: "flex flex-col gap-8",
+			}) {
+				@button.Button(button.Props{
+					Class: "w-full",
+					Type:  button.TypeSubmit,
+				}) {
+					Sign In
+				}
+				<div class="text-center text-sm">
+					Don't have an account?
+					<a href="#" class="text-primary underline underline-offset-4 hover:text-primary/80">Sign up</a>
+				</div>
+			}
+		}
+	</div>
+}

@@ -1,0 +1,20 @@
+package modules
+
+import "vertex/ui/components/icon"
+
+templ Navbar() {
+	<nav class="">
+		<div class="px-6 py-2 flex justify-between items-center relative border-b">
+			<div class="flex items-center">
+				<!-- @NavbarMobileMenu() -->
+				<a href="/" class="flex items-center gap-1.5">
+					@icon.Rocket(icon.Props{Class: "w-4 h-4"})
+					<span class="text-xl">Vertex</span>
+				</a>
+			</div>
+			<div class="flex gap-4 justify-end">
+				@ThemeSwitcher()
+			</div>
+		</div>
+	</nav>
+}
