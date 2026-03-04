@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/httprate"
 )
 
-func NewRouterWithMiddleware() chi.Router {
+func NewRouter() chi.Router {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)

@@ -1,0 +1,128 @@
+package pages
+
+import (
+	"vertex/api"
+	"vertex/ui/components/button"
+	"vertex/ui/components/card"
+	"vertex/ui/components/datepicker"
+	"vertex/ui/components/form"
+	"vertex/ui/components/selectbox"
+	"vertex/ui/components/textarea"
+	"vertex/ui/components/timepicker"
+	"vertex/ui/layouts"
+)
+
+templ PlanPage(sats []api.Satellite) {
+	@layouts.BaseLayout() {
+		<div class="flex m-4 justify-center items-center">
+			@card.Card() {
+				<div class="m-3 w-full max-w-sm">
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "plan-form",
+						}) {
+							Plan
+						}
+						@textarea.Textarea(textarea.Props{
+							AutoResize: false,
+						})
+					}
+					<br/>
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "plan-form",
+						}) {
+							Satellite Name
+						}
+						@selectbox.SelectBox() {
+							@selectbox.Trigger() {
+								@selectbox.Value(selectbox.ValueProps{
+									Placeholder: "Select a satellite",
+								})
+							}
+							@selectbox.Content() {
+								@selectbox.Group() {
+									@selectbox.Label() {
+										Satellite
+									}
+									for _, sat := range sats {
+										@selectbox.Item(selectbox.ItemProps{
+											Value: sat.SatName,
+										}) {
+											{ sat.SatName }
+										}
+									}
+								}
+							}
+						}
+					}
+					<br/>
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "plan-form",
+						}) {
+							Notbefore
+						}
+						<div class="flex gap-4">
+							<div class="flex-1">
+								@datepicker.DatePicker()
+							</div>
+							<div class="flex-1">
+								@timepicker.TimePicker()
+							</div>
+						</div>
+					}
+					<br/>
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "plan-form",
+						}) {
+							Deadline
+						}
+						<div class="flex gap-4">
+							<div class="flex-1">
+								@datepicker.DatePicker()
+							</div>
+							<div class="flex-1">
+								@timepicker.TimePicker()
+							</div>
+						</div>
+					}
+					<br/>
+					@form.Item() {
+						@form.Label(form.LabelProps{
+							For: "plan-form",
+						}) {
+							Priority
+						}
+						@selectbox.SelectBox() {
+							@selectbox.Trigger() {
+								@selectbox.Value(selectbox.ValueProps{
+									Placeholder: "Select a priority",
+								})
+							}
+							@selectbox.Content() {
+								@selectbox.Group() {
+									@selectbox.Label() {
+										Priority Level
+									}
+									for i := range 11 {
+										@selectbox.Item(selectbox.ItemProps{
+											Value: string(i),
+										}) {
+											{ i }
+										}
+									}
+								}
+							}
+						}
+					}
+					<br/>
+					@button.Button() {
+						Auto-Schedule
+					}
+				</div>
+			}
+		</div>
+	}
+}

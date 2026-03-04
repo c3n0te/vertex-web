@@ -1,6 +1,9 @@
 package modules
 
-import "vertex/ui/components/icon"
+import (
+	"vertex/ui/components/button"
+	"vertex/ui/components/icon"
+)
 
 templ Navbar() {
 	<nav class="">
@@ -12,7 +15,25 @@ templ Navbar() {
 					<span class="text-xl">Vertex</span>
 				</a>
 			</div>
-			<div class="flex gap-4 justify-end">
+			<div class="flex gap-1 justify-end items-center">
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Href:    "/dashboard",
+				}) {
+					Dashboard
+				}
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Href:    "/plan",
+				}) {
+					Plan
+				}
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Href:    "/schedule",
+				}) {
+					Schedule
+				}
 				@ThemeSwitcher()
 			</div>
 		</div>

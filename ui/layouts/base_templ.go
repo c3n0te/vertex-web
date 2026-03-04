@@ -10,6 +10,12 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"time"
+	"vertex/ui/components/calendar"
+	"vertex/ui/components/datepicker"
+	"vertex/ui/components/popover"
+	"vertex/ui/components/selectbox"
+	"vertex/ui/components/textarea"
+	"vertex/ui/components/timepicker"
 	"vertex/ui/modules"
 )
 
@@ -34,14 +40,14 @@ func Footer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"\"><footer class=\"\"><div class=\"mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8\"><nav class=\"-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6\" aria-label=\"Footer\"><a href=\"/\" class=\"text-gray-600 hover:text-gray-900\">Home</a></nav><p class=\"mt-10 text-center text-sm/6 text-gray-600\">&copy; ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"\"><footer class=\"\"><div class=\"mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8\"><nav class=\"-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6\" aria-label=\"Footer\"><a href=\"/\" class=\"\">Home</a> <a href=\"/dashboard\" class=\"\">Dashboard</a> <a href=\"/plan\" class=\"\">Plan</a> <a href=\"/schedule\" class=\"\">Schedule</a></nav><p class=\"mt-10 text-center text-sm/6 text-gray-600\">&copy; ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(time.Now().Year())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/layouts/base.templ`, Line: 16, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/layouts/base.templ`, Line: 25, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -77,6 +83,30 @@ func Header() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<head class=\"flex\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js\" integrity=\"sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz\" crossorigin=\"anonymous\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><link href=\"/css/output.css\" rel=\"stylesheet\"><link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/images/favicon.ico\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = datepicker.Script().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = timepicker.Script().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = calendar.Script().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = popover.Script().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = selectbox.Script().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = textarea.Script().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

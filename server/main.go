@@ -5,10 +5,15 @@ import (
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		slog.Error("Error loading .env file")
+	}
+
 	db, err := sqlx.Connect("sqlite3", ":memory:")
 	if err != nil {
 		slog.Error("Failed to open SQLite Database")
@@ -17,17 +22,9 @@ func main() {
 
 	defer db.Close()
 	Migrate(db)
-	Insert(db)
+	InsertSats(db)
 
-	users, err := Query(db)
-	if err != nil {
-		slog.Error("Failed to get users from DB")
-		return
-	}
-
-	slog.Info("DB Users: ", users)
-
-	router := NewRouterWithMiddleware()
-	MountRoutes(router)
+	router := NewRouter()
+	MountRoutes(router, db)
 	http.ListenAndServe(":8000", router)
 }

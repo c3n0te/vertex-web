@@ -1,5 +1,5 @@
 {
-  "componentsDir": "./ui/components",
+  "componentsDir": "ui/components",
   "utilsDir": "utils",
   "moduleName": "vertex",
   "jsDir": "assets/js",

@@ -1,0 +1,48 @@
+package pages
+
+import (
+	"vertex/api"
+	"vertex/ui/components/badge"
+	"vertex/ui/components/button"
+	"vertex/ui/components/card"
+	"vertex/ui/layouts"
+)
+
+templ DashboardPage(sats []api.Satellite) {
+	@layouts.BaseLayout() {
+		<h1 class="font-bold m-4">Stations</h1>
+		<h1 class="font-bold m-4">Satellites</h1>
+		<div class="grid grid-cols-2 sm:grid-cols-3 w-full h-full p-4 gap-4 items-center">
+			for _, sat := range sats {
+				<div>
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								{ sat.NoradID }
+							}
+							@card.Description() {
+								{ sat.SatName }
+							}
+							if sat.Status == "online" {
+								@badge.Badge() {
+									Online
+								}
+							} else {
+								@badge.Badge() {
+									Offline
+								}
+							}
+						}
+						@card.Content() {
+						}
+						@card.Footer() {
+							@button.Button() {
+								Info
+							}
+						}
+					}
+				</div>
+			}
+		</div>
+	}
+}

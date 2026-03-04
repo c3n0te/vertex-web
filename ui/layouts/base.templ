@@ -2,6 +2,12 @@ package layouts
 
 import (
 	"time"
+	"vertex/ui/components/calendar"
+	"vertex/ui/components/datepicker"
+	"vertex/ui/components/popover"
+	"vertex/ui/components/selectbox"
+	"vertex/ui/components/textarea"
+	"vertex/ui/components/timepicker"
 	"vertex/ui/modules"
 )
 
@@ -10,7 +16,10 @@ templ Footer() {
 		<footer class="">
 			<div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
 				<nav class="-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6" aria-label="Footer">
-					<a href="/" class="text-gray-600 hover:text-gray-900">Home</a>
+					<a href="/" class="">Home</a>
+					<a href="/dashboard" class="">Dashboard</a>
+					<a href="/plan" class="">Plan</a>
+					<a href="/schedule" class="">Schedule</a>
 				</nav>
 				<p class="mt-10 text-center text-sm/6 text-gray-600">
 					&copy; { time.Now().Year() } Tesseract Systems Inc. All rights reserved.
@@ -28,6 +37,12 @@ templ Header() {
 		<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 		<link href="/css/output.css" rel="stylesheet"/>
 		<link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"/>
+		@datepicker.Script()
+		@timepicker.Script()
+		@calendar.Script()
+		@popover.Script()
+		@selectbox.Script()
+		@textarea.Script()
 		@modules.Navbar()
 	</head>
 }
