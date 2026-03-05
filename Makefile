@@ -14,6 +14,7 @@ tailwind-clean:
 
 tailwind-watch:
 	npx @tailwindcss/cli -i ./assets/css/input.css -o ./assets/css/output.css --watch
+
 air:
 	air \
     --build.cmd "go build -race -ldflags '-s -w' -o ./bin ./server/" \

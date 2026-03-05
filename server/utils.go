@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
@@ -33,4 +34,15 @@ func ParseTLEFile() ([]api.Satellite, error) {
 	}
 
 	return sats, nil
+}
+
+func ParseStationFile() ([]api.Station, error) {
+	stn_data, err := os.ReadFile("./data/stations.json")
+	if err != nil {
+		return nil, err
+	}
+
+	var stns []api.Station
+	json.Unmarshal(stn_data, &stns)
+	return stns, nil
 }

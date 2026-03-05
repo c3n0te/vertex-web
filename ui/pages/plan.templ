@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"vertex/api"
 	"vertex/ui/components/button"
 	"vertex/ui/components/card"
@@ -14,28 +15,34 @@ import (
 
 templ PlanPage(sats []api.Satellite) {
 	@layouts.BaseLayout() {
-		<div class="flex m-4 justify-center items-center">
+		<div class="flex m-4 justify-center items-center max-w-full">
 			@card.Card() {
-				<div class="m-3 w-full max-w-sm">
+				<form action="/plan/submit" method="POST" class="m-3">
 					@form.Item() {
 						@form.Label(form.LabelProps{
-							For: "plan-form",
+							For: "plan",
 						}) {
 							Plan
 						}
 						@textarea.Textarea(textarea.Props{
-							AutoResize: false,
+							ID:          "plan",
+							Placeholder: "Enter your commands here...",
+							AutoResize:  false,
+							Name:        "plan",
+							Class:       "min-h-75",
 						})
 					}
 					<br/>
 					@form.Item() {
 						@form.Label(form.LabelProps{
-							For: "plan-form",
+							For: "satname",
 						}) {
 							Satellite Name
 						}
 						@selectbox.SelectBox() {
-							@selectbox.Trigger() {
+							@selectbox.Trigger(selectbox.TriggerProps{
+								Name: "satname",
+							}) {
 								@selectbox.Value(selectbox.ValueProps{
 									Placeholder: "Select a satellite",
 								})
@@ -59,44 +66,54 @@ templ PlanPage(sats []api.Satellite) {
 					<br/>
 					@form.Item() {
 						@form.Label(form.LabelProps{
-							For: "plan-form",
+							For: "notbefore",
 						}) {
-							Notbefore
+							Not Before
 						}
 						<div class="flex gap-4">
 							<div class="flex-1">
-								@datepicker.DatePicker()
+								@datepicker.DatePicker(datepicker.Props{
+									Name: "notbefore_date",
+								})
 							</div>
 							<div class="flex-1">
-								@timepicker.TimePicker()
+								@timepicker.TimePicker(timepicker.Props{
+									Name: "notbefore_time",
+								})
 							</div>
 						</div>
 					}
 					<br/>
 					@form.Item() {
 						@form.Label(form.LabelProps{
-							For: "plan-form",
+							For: "deadline",
 						}) {
 							Deadline
 						}
 						<div class="flex gap-4">
 							<div class="flex-1">
-								@datepicker.DatePicker()
+								@datepicker.DatePicker(datepicker.Props{
+									Name: "deadline_date",
+								})
 							</div>
 							<div class="flex-1">
-								@timepicker.TimePicker()
+								@timepicker.TimePicker(timepicker.Props{
+									Name: "deadline_time",
+								})
 							</div>
 						</div>
 					}
 					<br/>
 					@form.Item() {
 						@form.Label(form.LabelProps{
-							For: "plan-form",
+							For: "priority",
 						}) {
 							Priority
 						}
 						@selectbox.SelectBox() {
-							@selectbox.Trigger() {
+							@selectbox.Trigger(selectbox.TriggerProps{
+								Name: "priority",
+							}) {
 								@selectbox.Value(selectbox.ValueProps{
 									Placeholder: "Select a priority",
 								})
@@ -108,7 +125,7 @@ templ PlanPage(sats []api.Satellite) {
 									}
 									for i := range 11 {
 										@selectbox.Item(selectbox.ItemProps{
-											Value: string(i),
+											Value: fmt.Sprintf("%d", i),
 										}) {
 											{ i }
 										}
@@ -118,10 +135,14 @@ templ PlanPage(sats []api.Satellite) {
 						}
 					}
 					<br/>
-					@button.Button() {
-						Auto-Schedule
-					}
-				</div>
+					<div class="flex justify-end">
+						@button.Button(button.Props{
+							Type: "submit",
+						}) {
+							Auto-Schedule
+						}
+					</div>
+				</form>
 			}
 		</div>
 	}

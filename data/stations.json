@@ -1,0 +1,29 @@
+[
+  {
+    "stnid": "e2073fa2-1871-4061-8a1f-797e4f7a089b",
+    "stnname": "Vancouver-1",
+    "latitude": 49.246292,
+    "longitude": -123.116226,
+    "altitude": 15,
+    "minhorizon": 15,
+    "status": "online"
+  },
+  {
+    "stnid": "8d2cfd8b-04b5-4259-92a5-4c4662980aab",
+    "stnname": "Victoria-1",
+    "latitude": 48.407326,
+    "longitude": -123.329773,
+    "altitude": 80,
+    "minhorizon": 15,
+    "status": "online"
+  },
+  {
+    "stnid": "cbd49c96-331a-4b13-afe3-cd7db27d6152",
+    "stnname": "Calgary-1",
+    "latitude": 51.049999,
+    "longitude": -114.066666,
+    "altitude": 1045,
+    "minhorizon": 15,
+    "status": "offline"
+  }
+]

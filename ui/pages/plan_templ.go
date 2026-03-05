@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
 	"vertex/api"
 	"vertex/ui/components/button"
 	"vertex/ui/components/card"
@@ -53,7 +54,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex m-4 justify-center items-center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex m-4 justify-center items-center max-w-full\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,7 +70,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"m-3 w-full max-w-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form action=\"/plan/submit\" method=\"POST\" class=\"m-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -104,7 +105,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = form.Label(form.LabelProps{
-						For: "plan-form",
+						For: "plan",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -114,7 +115,11 @@ func PlanPage(sats []api.Satellite) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					templ_7745c5c3_Err = textarea.Textarea(textarea.Props{
-						AutoResize: false,
+						ID:          "plan",
+						Placeholder: "Enter your commands here...",
+						AutoResize:  false,
+						Name:        "plan",
+						Class:       "min-h-75",
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -160,7 +165,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = form.Label(form.LabelProps{
-						For: "plan-form",
+						For: "satname",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -201,7 +206,9 @@ func PlanPage(sats []api.Satellite) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = selectbox.Trigger().Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
+							Name: "satname",
+						}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -271,7 +278,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 										var templ_7745c5c3_Var14 string
 										templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(sat.SatName)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/plan.templ`, Line: 52, Col: 24}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/plan.templ`, Line: 59, Col: 24}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 										if templ_7745c5c3_Err != nil {
@@ -338,14 +345,14 @@ func PlanPage(sats []api.Satellite) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "Notbefore")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "Not Before")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						return nil
 					})
 					templ_7745c5c3_Err = form.Label(form.LabelProps{
-						For: "plan-form",
+						For: "notbefore",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -354,7 +361,9 @@ func PlanPage(sats []api.Satellite) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = datepicker.DatePicker().Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = datepicker.DatePicker(datepicker.Props{
+						Name: "notbefore_date",
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -362,7 +371,9 @@ func PlanPage(sats []api.Satellite) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = timepicker.TimePicker().Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = timepicker.TimePicker(timepicker.Props{
+						Name: "notbefore_time",
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -411,7 +422,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = form.Label(form.LabelProps{
-						For: "plan-form",
+						For: "deadline",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -420,7 +431,9 @@ func PlanPage(sats []api.Satellite) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = datepicker.DatePicker().Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = datepicker.DatePicker(datepicker.Props{
+						Name: "deadline_date",
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -428,7 +441,9 @@ func PlanPage(sats []api.Satellite) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = timepicker.TimePicker().Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = timepicker.TimePicker(timepicker.Props{
+						Name: "deadline_time",
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -477,7 +492,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = form.Label(form.LabelProps{
-						For: "plan-form",
+						For: "priority",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -518,7 +533,9 @@ func PlanPage(sats []api.Satellite) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = selectbox.Trigger().Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
+							Name: "priority",
+						}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -588,7 +605,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 										var templ_7745c5c3_Var27 string
 										templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(i)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/plan.templ`, Line: 113, Col: 14}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/pages/plan.templ`, Line: 130, Col: 14}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 										if templ_7745c5c3_Err != nil {
@@ -597,7 +614,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 										return nil
 									})
 									templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-										Value: string(i),
+										Value: fmt.Sprintf("%d", i),
 									}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
@@ -627,7 +644,7 @@ func PlanPage(sats []api.Satellite) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<br>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<br><div class=\"flex justify-end\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -649,11 +666,13 @@ func PlanPage(sats []api.Satellite) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = button.Button().Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = button.Button(button.Props{
+					Type: "submit",
+				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

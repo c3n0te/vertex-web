@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -8,6 +9,18 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 )
+
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Authorization")
+		if token != "valid-token" {
+			http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
 
 func NewRouter() chi.Router {
 	router := chi.NewRouter()
@@ -18,7 +31,7 @@ func NewRouter() chi.Router {
 	router.Use(middleware.RedirectSlashes)
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "PUT", "POST", "DELETE", "HEAD", "OPTION"},
+		AllowedMethods:   []string{"GET", "PUT", "POST", "DELETE"},
 		AllowedHeaders:   []string{"User-Agent", "Content-Type", "Accept", "Accept-Encoding", "Accept-Language", "Cache-Control", "Connection", "DNT", "Host", "Origin", "Pragma", "Referer"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,

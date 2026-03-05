@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"vertex/api"
 	"vertex/ui/components/badge"
 	"vertex/ui/components/button"
@@ -8,41 +9,93 @@ import (
 	"vertex/ui/layouts"
 )
 
-templ DashboardPage(sats []api.Satellite) {
-	@layouts.BaseLayout() {
-		<h1 class="font-bold m-4">Stations</h1>
-		<h1 class="font-bold m-4">Satellites</h1>
-		<div class="grid grid-cols-2 sm:grid-cols-3 w-full h-full p-4 gap-4 items-center">
-			for _, sat := range sats {
-				<div>
-					@card.Card() {
-						@card.Header() {
-							@card.Title() {
-								{ sat.NoradID }
-							}
-							@card.Description() {
-								{ sat.SatName }
-							}
-							if sat.Status == "online" {
-								@badge.Badge() {
-									Online
-								}
-							} else {
-								@badge.Badge() {
-									Offline
-								}
-							}
+templ StationsDash(stns []api.Station) {
+	<div class="grid grid-cols-2 sm:grid-cols-3 w-full h-full p-4 gap-4 items-center">
+		for _, stn := range stns {
+			<div>
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							{ stn.StnName }
 						}
-						@card.Content() {
+						@card.Description() {
+							{ fmt.Sprintf("LatLong: (%v, %v)", stn.Latitude, stn.Longitude) }
 						}
-						@card.Footer() {
-							@button.Button() {
-								Info
+						@card.Description() {
+							{ fmt.Sprintf("Altitude: %.2f metres", stn.Altitude) }
+						}
+						if stn.Status == "online" {
+							@badge.Badge(badge.Props{
+								Class: "bg-green-500",
+							}) {
+								Online
+							}
+						} else {
+							@badge.Badge(badge.Props{
+								Class: "bg-red-500",
+							}) {
+								Offline
 							}
 						}
 					}
-				</div>
-			}
-		</div>
+					@card.Content() {
+					}
+					@card.Footer() {
+						@button.Button() {
+							Info
+						}
+					}
+				}
+			</div>
+		}
+	</div>
+}
+
+templ SatellitesDash(sats []api.Satellite) {
+	<div class="grid grid-cols-2 sm:grid-cols-3 w-full h-full p-4 gap-4 items-center">
+		for _, sat := range sats {
+			<div>
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							{ sat.NoradID }
+						}
+						@card.Description() {
+							{ sat.SatName }
+						}
+						if sat.Status == "online" {
+							@badge.Badge(badge.Props{
+								Class: "bg-green-500",
+							}) {
+								Online
+							}
+						} else {
+							@badge.Badge(badge.Props{
+								Class: "bg-red-500",
+							}) {
+								Offline
+							}
+						}
+					}
+					@card.Content() {
+					}
+					@card.Footer() {
+						@button.Button() {
+							Info
+						}
+					}
+				}
+			</div>
+		}
+	</div>
+}
+
+templ DashboardPage(stns []api.Station, sats []api.Satellite) {
+	@layouts.BaseLayout() {
+		<h1 class="font-bold m-4">Stations</h1>
+		@StationsDash(stns)
+		<br/>
+		<h1 class="font-bold m-4">Satellites</h1>
+		@SatellitesDash(sats)
 	}
 }
