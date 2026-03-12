@@ -6,7 +6,7 @@ import (
 )
 
 templ LoginPage() {
-	@layouts.BaseLayout() {
+	@layouts.BaseLayout(false) {
 		@modules.SignIn001()
 	}
 }

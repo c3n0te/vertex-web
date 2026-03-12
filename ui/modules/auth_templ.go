@@ -36,7 +36,7 @@ func SignIn001() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form action=\"/auth/login\" method=\"POST\" class=\"flex min-h-svh w-full items-center justify-center p-6 md:p-10\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -178,6 +178,7 @@ func SignIn001() templ.Component {
 						ID:          "sign-in-001-email",
 						Type:        "email",
 						Placeholder: "name@example.com",
+						Name:        "email",
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -236,6 +237,7 @@ func SignIn001() templ.Component {
 						ID:          "sign-in-001-password",
 						Type:        "password",
 						Placeholder: "••••••••",
+						Name:        "password",
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -295,7 +297,7 @@ func SignIn001() templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " <div class=\"text-center text-sm\">Don't have an account? <a href=\"#\" class=\"text-primary underline underline-offset-4 hover:text-primary/80\">Sign up</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " <div class=\"text-center text-sm\">Don't have an account? <a href=\"/auth/sign-up\" class=\"text-primary underline underline-offset-4 hover:text-primary/80\">Sign up</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -315,7 +317,7 @@ func SignIn001() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

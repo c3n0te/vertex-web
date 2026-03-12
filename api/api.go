@@ -1,14 +1,14 @@
 package api
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
 type User struct {
-	Name  string `db:"name"`
-	Email string `db:"email"`
+	UserID   uuid.UUID `db:"userid"`
+	Username string    `db:"username"`
+	Email    string    `db:"email"`
+	Password string    `db:"password"`
 }
 
 type Satellite struct {
@@ -33,7 +33,37 @@ type Task struct {
 	TaskID    uuid.UUID `json:"taskid,omitempty" db:"taskid"`
 	Plan      string    `json:"plan,omitempty" db:"plan"`
 	SatName   string    `json:"satname,omitempty" db:"satname"`
-	NotBefore time.Time `json:"notbefore,omitzero" db:"notbefore"`
-	Deadline  time.Time `json:"deadline,omitzero" db:"deadline"`
-	Priority  int8      `json:"priority,omitempty" db:"priority"`
+	NotBefore string    `json:"notbefore,omitzero" db:"notbefore"`
+	Deadline  string    `json:"deadline,omitzero" db:"deadline"`
+	Priority  uint8     `json:"priority,omitempty" db:"priority"`
+}
+
+type Pass struct {
+	PassID    uuid.UUID `json:"passid,omitempty" db:"passid"`
+	StnID     uuid.UUID `json:"stnid,omitempty" db:"stnid"`
+	StnName   string    `json:"stnname,omitempty" db:"stnname"`
+	NoradID   uint32    `json:"noradid,omitempty" db:"noradid"`
+	SatName   string    `json:"satname,omitempty" db:"satname"`
+	Azimuth   float32   `json:"azimuth,omitempty" db:"azimuth"`
+	Elevation float32   `json:"elevation,omitempty" db:"elevation"`
+	AOS       string    `json:"aos,omitzero" db:"aos"`
+	LOS       string    `json:"los,omitzero" db:"los"`
+}
+
+type Job struct {
+	JobID     uuid.UUID `json:"jobid,omitempty" db:"jobid"`
+	TaskID    uuid.UUID `json:"taskid,omitempty" db:"taskid"`
+	StnID     uuid.UUID `json:"stnid,omitempty" db:"stnid"`
+	StnName   string    `json:"stnname,omitempty" db:"stnname"`
+	NoradID   uint32    `json:"noradid,omitempty" db:"noradid"`
+	SatName   string    `json:"satname,omitempty" db:"satname"`
+	Azimuth   float32   `json:"azimuth,omitempty" db:"azimuth"`
+	Elevation float32   `json:"elevation,omitempty" db:"elevation"`
+	AOS       string    `json:"aos,omitzero" db:"aos"`
+	LOS       string    `json:"los,omitzero" db:"los"`
+	Priority  uint8     `json:"priority,omitempty" db:"priority"`
+}
+
+type Notification struct {
+	Service string `json:"service,omitempty" db:"service"`
 }

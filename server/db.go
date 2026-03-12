@@ -7,9 +7,11 @@ import (
 
 func Migrate(db *sqlx.DB) {
 	schema := `
-	CREATE TABLE IF NOT EXISTS users (
-      	name TEXT,
-      	email TEXT
+	CREATE TABLE IF NOT EXISTS Users (
+		userid			TEXT UNIQUE PRIMARY KEY,
+      	username 		TEXT UNIQUE,
+      	email 	 		TEXT UNIQUE,
+        password  		TEXT
     );
 
 	CREATE TABLE IF NOT EXISTS Stations (
@@ -56,8 +58,9 @@ func Migrate(db *sqlx.DB) {
 
     CREATE TABLE IF NOT EXISTS Jobs (
         jobid           TEXT UNIQUE PRIMARY KEY,
-        planid          TEXT UNIQUE NOT NULL,
+        taskid          TEXT NOT NULL,
         stnid           TEXT NOT NULL,
+        stnname			TEXT NOT NULL,
         noradid         INTEGER NOT NULL,
         satname         TEXT,
         azimuth         FLOAT,
@@ -66,6 +69,87 @@ func Migrate(db *sqlx.DB) {
         los             TEXT NOT NULL,
         priority        INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS Parameters (
+        max_horizon     INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS Notifications (
+        service         TEXT NOT NULL
+    );
+
+    CREATE TRIGGER IF NOT EXISTS parameter_trigger AFTER DELETE ON Parameters
+    BEGIN
+        INSERT INTO Parameters (max_horizon) VALUES (24);
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS stn_insert_trigger AFTER INSERT ON Stations
+    BEGIN
+        INSERT INTO Notifications (service) VALUES ('orbital');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS stn_update_trigger AFTER UPDATE ON Stations
+    BEGIN
+        INSERT INTO Notifications (service) VALUES ('orbital');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS stn_delete_trigger AFTER DELETE ON Stations
+    BEGIN
+        INSERT INTO Notifications (service) VALUES ('orbital');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS sat_insert_trigger AFTER INSERT ON Satellites
+    BEGIN
+        INSERT INTO Notifications (service) VALUES ('orbital');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS sat_update_trigger AFTER UPDATE ON Satellites
+    BEGIN
+        INSERT INTO Notifications (service) VALUES ('orbital');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS sat_delete_trigger AFTER DELETE ON Satellites
+    BEGIN
+        INSERT INTO Notifications (service) VALUES ('orbital');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS pass_insert_trigger AFTER INSERT ON Passes
+    BEGIN
+        DELETE FROM Jobs;
+        INSERT INTO Notifications (service) VALUES ('engine');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS pass_update_trigger AFTER UPDATE ON Passes
+    BEGIN
+        DELETE FROM Jobs;
+        INSERT INTO Notifications (service) VALUES ('engine');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS pass_delete_trigger AFTER DELETE ON Passes
+    BEGIN
+        DELETE FROM Jobs;
+        INSERT INTO Notifications (service) VALUES ('engine');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS task_insert_trigger AFTER INSERT ON Tasks
+    BEGIN
+        DELETE FROM Jobs;
+        INSERT INTO Notifications (service) VALUES ('engine');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS task_update_trigger AFTER UPDATE ON Tasks
+    BEGIN
+        DELETE FROM Jobs;
+        INSERT INTO Notifications (service) VALUES ('engine');
+    END;
+
+    CREATE TRIGGER IF NOT EXISTS task_delete_trigger AFTER DELETE ON Tasks
+    BEGIN
+        DELETE FROM Jobs;
+        INSERT INTO Notifications (service) VALUES ('engine');
+    END;
+
+    INSERT INTO Parameters (max_horizon) VALUES (24);
     `
 	db.MustExec(schema)
 }

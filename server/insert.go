@@ -8,6 +8,7 @@ import (
 	"time"
 	"vertex/api"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -64,35 +65,79 @@ func InsertStns(db *sqlx.DB) error {
 	return nil
 }
 
-func InsertTask(db *sqlx.DB, task url.Values) error {
-	plan := task["plan"][0]
-	satname := task["satname"][0]
+func InsertUser(db *sqlx.DB, form url.Values) error {
+	uname := form["username"][0]
+	email := form["email"][0]
+	pass := form["password"][0]
+	re_pass := form["re_password"][0]
+
+	if pass != re_pass {
+		return &api.InvalidPassword{}
+	}
+
+	hash_pass, err := argon2id.CreateHash(pass, argon2id.DefaultParams)
+	if err != nil {
+		slog.Error("Failed to hash password: ", "error", err)
+		return err
+	}
+
+	user := api.User{
+		UserID:   uuid.New(),
+		Username: uname,
+		Email:    email,
+		Password: hash_pass,
+	}
+
+	_, err = db.NamedExec(
+		`INSERT INTO Users
+		(userid, username, email, password)
+		VALUES
+		(:userid, :username, :email, :password)`,
+		&user,
+	)
+
+	if err != nil {
+		slog.Error("Failed to insert user: ", "error", err)
+		return err
+	}
+
+	slog.Info("User inserted into db.")
+	return nil
+}
+
+func InsertTask(db *sqlx.DB, form url.Values) error {
+	plan := form["plan"][0]
+	satname := form["satname"][0]
 	zone, _ := time.Now().Zone()
 	layout := "2006-01-02 15:04:00 MST"
-	notb_date_str := fmt.Sprintf("%v %v:00 %s", task["notbefore_date"][0], task["notbefore_time"][0], zone)
-	dead_date_str := fmt.Sprintf("%v %v:00 %s", task["deadline_date"][0], task["deadline_time"][0], zone)
+	notb_date_str := fmt.Sprintf("%v %v:00 %s", form["notbefore_date"][0], form["notbefore_time"][0], zone)
+	dead_date_str := fmt.Sprintf("%v %v:00 %s", form["deadline_date"][0], form["deadline_time"][0], zone)
+
 	notb_date, err := time.Parse(layout, notb_date_str)
 	if err != nil {
 		slog.Error("Failed to create notbefore date: ", "error", err)
+		return err
 	}
 
 	dead_date, err := time.Parse(layout, dead_date_str)
 	if err != nil {
 		slog.Error("Failed to create deadline date: ", "error", err)
+		return err
 	}
 
-	priority, err := strconv.ParseInt(task["priority"][0], 10, 8)
+	priority, err := strconv.ParseInt(form["priority"][0], 10, 8)
 	if err != nil {
 		slog.Error("Failed to parse priority int: ", "error", err)
+		return err
 	}
 
-	new_task := api.Task{
+	task := api.Task{
 		TaskID:    uuid.New(),
 		Plan:      plan,
 		SatName:   satname,
-		NotBefore: notb_date,
-		Deadline:  dead_date,
-		Priority:  int8(priority),
+		NotBefore: notb_date.UTC().Format(time.RFC3339),
+		Deadline:  dead_date.UTC().Format(time.RFC3339),
+		Priority:  uint8(priority),
 	}
 
 	_, err = db.NamedExec(
@@ -100,7 +145,7 @@ func InsertTask(db *sqlx.DB, task url.Values) error {
 		(taskid, plan, satname, notbefore, deadline, priority)
 		VALUES
 		(:taskid, :plan, :satname, :notbefore, :deadline, :priority)`,
-		&new_task,
+		&task,
 	)
 
 	if err != nil {

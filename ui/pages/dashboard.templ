@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"fmt"
 	"vertex/api"
 	"vertex/ui/components/badge"
 	"vertex/ui/components/button"
@@ -17,12 +16,6 @@ templ StationsDash(stns []api.Station) {
 					@card.Header() {
 						@card.Title() {
 							{ stn.StnName }
-						}
-						@card.Description() {
-							{ fmt.Sprintf("LatLong: (%v, %v)", stn.Latitude, stn.Longitude) }
-						}
-						@card.Description() {
-							{ fmt.Sprintf("Altitude: %.2f metres", stn.Altitude) }
 						}
 						if stn.Status == "online" {
 							@badge.Badge(badge.Props{
@@ -90,8 +83,8 @@ templ SatellitesDash(sats []api.Satellite) {
 	</div>
 }
 
-templ DashboardPage(stns []api.Station, sats []api.Satellite) {
-	@layouts.BaseLayout() {
+templ DashboardPage(stns []api.Station, sats []api.Satellite, isLoggedIn bool) {
+	@layouts.BaseLayout(isLoggedIn) {
 		<h1 class="font-bold m-4">Stations</h1>
 		@StationsDash(stns)
 		<br/>

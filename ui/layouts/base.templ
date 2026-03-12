@@ -29,7 +29,7 @@ templ Footer() {
 	</footer>
 }
 
-templ Header() {
+templ Header(isLoggedIn bool) {
 	<head class="flex">
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -43,14 +43,14 @@ templ Header() {
 		@popover.Script()
 		@selectbox.Script()
 		@textarea.Script()
-		@modules.Navbar()
+		@modules.Navbar(isLoggedIn)
 	</head>
 }
 
-templ BaseLayout() {
+templ BaseLayout(isLoggedIn bool) {
 	<!DOCTYPE html>
 	<html lang="en">
-		@Header()
+		@Header(isLoggedIn)
 		<body>
 			{ children... }
 		</body>

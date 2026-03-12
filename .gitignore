@@ -5,6 +5,8 @@
 node_modules/
 bin/
 tmp/
+orbital_prediction_service.log
+vertex.db
 *.exe
 *.exe~
 *.dll

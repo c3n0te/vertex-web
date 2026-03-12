@@ -3,11 +3,33 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
 	"vertex/api"
+
+	"github.com/golang-jwt/jwt/v5"
 )
+
+func ParseToken(jwtStr string, key []byte) bool {
+	token, err := jwt.Parse(jwtStr, func(token *jwt.Token) (any, error) {
+		return key, nil
+	})
+
+	switch {
+	case token.Valid:
+		return true
+	case errors.Is(err, jwt.ErrTokenMalformed):
+		return false
+	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
+		return false
+	case errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet):
+		return false
+	default:
+		return false
+	}
+}
 
 func ParseTLEFile() ([]api.Satellite, error) {
 	tle_f, err := os.Open("./data/tle.txt")

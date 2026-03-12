@@ -2,6 +2,10 @@
 clean:
 	go clean
 
+.PHONY: scheduler
+scheduler:
+	go build -race -ldflags "-s -w" -o ./bin ./scheduler
+
 .PHONY: server
 server:
 	go build -race -ldflags "-s -w" -o ./bin ./server/
@@ -27,4 +31,5 @@ air:
 
 devenv:
 	make tailwind-clean
+	make scheduler
 	make -j3 tailwind-watch templ air

@@ -13,8 +13,8 @@ import (
 	"vertex/ui/layouts"
 )
 
-templ PlanPage(sats []api.Satellite) {
-	@layouts.BaseLayout() {
+templ PlanPage(sats []api.Satellite, isLoggedIn bool) {
+	@layouts.BaseLayout(isLoggedIn) {
 		<div class="flex m-4 justify-center items-center max-w-full">
 			@card.Card() {
 				<form action="/plan/submit" method="POST" class="m-3">
@@ -123,7 +123,7 @@ templ PlanPage(sats []api.Satellite) {
 									@selectbox.Label() {
 										Priority Level
 									}
-									for i := range 11 {
+									for i := range 6 {
 										@selectbox.Item(selectbox.ItemProps{
 											Value: fmt.Sprintf("%d", i),
 										}) {
@@ -137,7 +137,7 @@ templ PlanPage(sats []api.Satellite) {
 					<br/>
 					<div class="flex justify-end">
 						@button.Button(button.Props{
-							Type: "submit",
+							Type: button.TypeSubmit,
 						}) {
 							Auto-Schedule
 						}

@@ -1,8 +1,116 @@
 package pages
 
-import "vertex/ui/layouts"
+import (
+	"fmt"
+	"vertex/api"
+	"vertex/ui/components/card"
+	"vertex/ui/components/pagination"
+	"vertex/ui/components/table"
+	"vertex/ui/layouts"
+)
 
-templ SchedulePage() {
-	@layouts.BaseLayout() {
+templ SchedulePage(jobs []api.Job, page int, totalPages int, isLoggedIn bool) {
+	@layouts.BaseLayout(isLoggedIn) {
+		<div class="flex items-center justify-center m-4 overflow-hidden">
+			@card.Card() {
+				@table.Table() {
+					@table.Caption() {
+						Scheduled jobs.
+					}
+					@table.Header() {
+						@table.Row() {
+							@table.Head() {
+								Task
+							}
+							@table.Head() {
+								Station
+							}
+							@table.Head() {
+								Satellite
+							}
+							@table.Head() {
+								Azimuth
+							}
+							@table.Head() {
+								Elevation
+							}
+							@table.Head() {
+								AOS
+							}
+							@table.Head() {
+								LOS
+							}
+						}
+					}
+					@table.Body() {
+						for _, job := range jobs {
+							@table.Row() {
+								@table.Cell() {
+									{ job.TaskID.String() }
+								}
+								@table.Cell() {
+									{ job.StnName }
+								}
+								@table.Cell() {
+									{ job.SatName }
+								}
+								@table.Cell() {
+									{ fmt.Sprintf("%.2f", job.Azimuth) }
+								}
+								@table.Cell() {
+									{ fmt.Sprintf("%.2f",job.Elevation) }
+								}
+								@table.Cell() {
+									{ job.AOS }
+								}
+								@table.Cell() {
+									{ job.LOS }
+								}
+							}
+						}
+					}
+				}
+				@pagination.Pagination(pagination.Props{
+					Class: "mt-4 mx-4 justify-end",
+				}) {
+					@pagination.Content() {
+						if page <= 1 {
+							@pagination.Item() {
+								@pagination.Previous(pagination.PreviousProps{
+									Href:     fmt.Sprintf("?page=%d", page-1),
+									Label:    "Previous",
+									Disabled: true,
+								})
+							}
+						} else {
+							@pagination.Item() {
+								@pagination.Previous(pagination.PreviousProps{
+									Href:     fmt.Sprintf("?page=%d", page-1),
+									Label:    "Previous",
+									Disabled: false,
+								})
+							}
+						}
+						if page < totalPages {
+							@pagination.Item() {
+								@pagination.Next(pagination.NextProps{
+									Href:     fmt.Sprintf("?page=%d", page+1),
+									Label:    "Next",
+									Disabled: false,
+								})
+							}
+						} else {
+							@pagination.Item() {
+								@pagination.Next(pagination.NextProps{
+									Href:     fmt.Sprintf("?page=%d", page+1),
+									Label:    "Next",
+									Disabled: true,
+								})
+							}
+						}
+					}
+				}
+			}
+		</div>
 	}
 }

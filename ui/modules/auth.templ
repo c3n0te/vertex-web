@@ -8,7 +8,7 @@ import (
 )
 
 templ SignIn001() {
-	<div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+	<form action="/auth/login" method="POST" class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
 		@card.Card(card.Props{
 			Class: "w-full max-w-sm",
 		}) {
@@ -33,6 +33,7 @@ templ SignIn001() {
 						ID:          "sign-in-001-email",
 						Type:        "email",
 						Placeholder: "name@example.com",
+						Name:        "email",
 					})
 				}
 				@form.Item() {
@@ -45,6 +46,7 @@ templ SignIn001() {
 						ID:          "sign-in-001-password",
 						Type:        "password",
 						Placeholder: "••••••••",
+						Name:        "password",
 					})
 				}
 			}
@@ -59,9 +61,9 @@ templ SignIn001() {
 				}
 				<div class="text-center text-sm">
 					Don't have an account?
-					<a href="#" class="text-primary underline underline-offset-4 hover:text-primary/80">Sign up</a>
+					<a href="/auth/sign-up" class="text-primary underline underline-offset-4 hover:text-primary/80">Sign up</a>
 				</div>
 			}
 		}
-	</div>
+	</form>
 }

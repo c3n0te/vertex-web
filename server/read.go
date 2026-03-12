@@ -2,10 +2,121 @@ package main
 
 import (
 	"log/slog"
+	"net/url"
 	"vertex/api"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/jmoiron/sqlx"
 )
+
+func ReadJobCount(db *sqlx.DB) (int, error) {
+	var count int
+	err := db.Get(
+		&count,
+		`SELECT
+			COUNT(*)
+        FROM Jobs`,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Jobs table: ", "error", err)
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func ReadJobs(db *sqlx.DB, pageSize int, offset int) ([]api.Job, error) {
+	rows, err := db.Queryx(
+		`SELECT
+			jobid,
+			taskid,
+			stnid,
+			stnname,
+			noradid,
+			satname,
+			azimuth,
+			elevation,
+			aos,
+			los,
+			priority
+        FROM Jobs
+        LIMIT ?
+        OFFSET ?`,
+		pageSize,
+		offset,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Jobs table: ", "error", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	jobs := []api.Job{}
+	job := api.Job{}
+	for rows.Next() {
+		err = rows.StructScan(&job)
+		if err != nil {
+			slog.Error("Failed to marshal db rows into Job struct: ", "error", err)
+			return nil, err
+		}
+
+		jobs = append(jobs, job)
+	}
+
+	return jobs, nil
+}
+
+func ReadUser(db *sqlx.DB, form url.Values) (*api.User, error) {
+	email := form["email"][0]
+	pass := form["password"][0]
+
+	rows, err := db.Queryx(
+		`SELECT
+			userid,
+			username,
+			email,
+			password
+        FROM Users
+        WHERE email = ?
+        LIMIT 1`,
+		email,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Users table: ", "error", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	user := api.User{}
+	for rows.Next() {
+		err = rows.StructScan(&user)
+		if err != nil {
+			slog.Error("Failed to marshal db rows into User struct: ", "error", err)
+			return nil, err
+		}
+	}
+
+	if user.Email == "" {
+		return &user, nil
+	}
+
+	match, err := argon2id.ComparePasswordAndHash(pass, user.Password)
+	if err != nil {
+		slog.Error("Failed to match passwords: ", "error", err)
+		return nil, err
+	}
+
+	if !match {
+		err := &api.InvalidPassword{}
+		slog.Error("Failed to match passwords: ", "error", err)
+		return nil, err
+	}
+
+	return &user, nil
+}
 
 func ReadSats(db *sqlx.DB) ([]api.Satellite, error) {
 	rows, err := db.Query(
@@ -23,6 +134,7 @@ func ReadSats(db *sqlx.DB) ([]api.Satellite, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
 	sat := api.Satellite{}
 	sats := []api.Satellite{}
 
@@ -58,6 +170,7 @@ func ReadStns(db *sqlx.DB) ([]api.Station, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
 	stn := api.Station{}
 	stns := []api.Station{}
 
