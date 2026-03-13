@@ -10,13 +10,13 @@ import (
 	"vertex/ui/layouts"
 )
 
-templ SchedulePage(jobs []api.Job, page int, totalPages int, isLoggedIn bool) {
+templ PendingPage(tasks []api.Task, page int, totalPages int, isLoggedIn bool) {
 	@layouts.BaseLayout(isLoggedIn) {
 		<div class="flex items-center justify-center m-4 overflow-hidden">
 			@card.Card() {
 				@table.Table() {
 					@table.Caption() {
-						Scheduled jobs.
+						Pending tasks.
 					}
 					@table.Header() {
 						@table.Row() {
@@ -24,48 +24,36 @@ templ SchedulePage(jobs []api.Job, page int, totalPages int, isLoggedIn bool) {
 								Task
 							}
 							@table.Head() {
-								Station
-							}
-							@table.Head() {
 								Satellite
 							}
 							@table.Head() {
-								Azimuth
+								Notbefore
 							}
 							@table.Head() {
-								Elevation
+								Deadline
 							}
 							@table.Head() {
-								AOS
-							}
-							@table.Head() {
-								LOS
+								Priority
 							}
 						}
 					}
 					@table.Body() {
-						for _, job := range jobs {
+						for _, task := range tasks {
 							@table.Row() {
 								@table.Cell() {
-									{ strings.Split(job.TaskID.String(), "-")[0] }
+									{ strings.Split(task.TaskID.String(), "-")[0] }
 								}
 								@table.Cell() {
-									{ job.StnName }
+									{ task.SatName }
 								}
 								@table.Cell() {
-									{ job.SatName }
+									{ task.NotBefore }
 								}
 								@table.Cell() {
-									{ fmt.Sprintf("%.2f", job.Azimuth) }
+									{ task.Deadline }
 								}
 								@table.Cell() {
-									{ fmt.Sprintf("%.2f",job.Elevation) }
-								}
-								@table.Cell() {
-									{ fmt.Sprintf("%v UTC", strings.Split(job.AOS, ".")[0]) }
-								}
-								@table.Cell() {
-									{ fmt.Sprintf("%v UTC", strings.Split(job.LOS, ".")[0]) }
+									{ task.Priority }
 								}
 							}
 						}

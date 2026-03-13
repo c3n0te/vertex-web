@@ -232,6 +232,59 @@ func (srv *Server) PostPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/plan", http.StatusSeeOther)
 }
 
+func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := false
+	cookie, err := r.Cookie("jwt")
+	if err != nil {
+		slog.Error("Failed to parse JWT: ", "error", err)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	isLoggedIn = ParseToken(cookie.Value, []byte(srv.Key))
+	if !isLoggedIn {
+		slog.Error("Invalid JWT: ", "error", err)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	pageStr := r.URL.Query().Get("page")
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		slog.Error("Failed to convert page to str: ", "error", err)
+		http.Redirect(w, r, "/pending", http.StatusSeeOther)
+		return
+	}
+
+	if page < 1 {
+		page = 1
+	}
+
+	pageSize := 10
+	offset := (page - 1) * pageSize
+	numTasks, err := ReadTaskCount(srv.DB)
+	if err != nil {
+		slog.Error("Failed to read jobs: ", "error", err)
+		http.Redirect(w, r, "/pending", http.StatusSeeOther)
+		return
+	}
+
+	tasks, err := ReadTasks(srv.DB, pageSize, offset)
+	if err != nil {
+		slog.Error("Failed to read jobs: ", "error", err)
+		http.Redirect(w, r, "/pending", http.StatusSeeOther)
+		return
+	}
+
+	totalPages := int(math.Ceil(float64(numTasks) / float64(pageSize)))
+	pending := pages.PendingPage(tasks, page, int(totalPages), isLoggedIn)
+	templ.Handler(pending).ServeHTTP(w, r)
+}
+
 func (srv *Server) GetSchedule(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
 	cookie, err := r.Cookie("jwt")

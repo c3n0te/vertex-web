@@ -12,8 +12,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var tokenAuth *jwtauth.JWTAuth
-
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -27,6 +25,7 @@ func main() {
 		return
 	}
 
+	var tokenAuth *jwtauth.JWTAuth
 	tokenAuth = jwtauth.New("HS256", []byte(key), nil)
 	db, err := sqlx.Connect("sqlite3", "./vertex.db")
 	if err != nil {
@@ -52,6 +51,7 @@ func main() {
 		r.Get("/dashboard", srv.GetDashboard)
 		r.Get("/plan", srv.GetPlan)
 		r.Post("/plan/submit", srv.PostPlanSubmit)
+		r.Get("/pending", srv.GetPending)
 		r.Get("/schedule", srv.GetSchedule)
 	})
 

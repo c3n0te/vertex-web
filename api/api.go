@@ -36,6 +36,7 @@ type Task struct {
 	NotBefore string    `json:"notbefore,omitzero" db:"notbefore"`
 	Deadline  string    `json:"deadline,omitzero" db:"deadline"`
 	Priority  uint8     `json:"priority,omitempty" db:"priority"`
+	Status    string    `json:"status" db:"status"`
 }
 
 type Pass struct {

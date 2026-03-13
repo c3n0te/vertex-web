@@ -10,6 +10,23 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+func ReadTaskCount(db *sqlx.DB) (int, error) {
+	var count int
+	err := db.Get(
+		&count,
+		`SELECT
+			COUNT(*)
+        FROM Tasks`,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Jobs table: ", "error", err)
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func ReadJobCount(db *sqlx.DB) (int, error) {
 	var count int
 	err := db.Get(
@@ -25,6 +42,47 @@ func ReadJobCount(db *sqlx.DB) (int, error) {
 	}
 
 	return count, nil
+}
+
+func ReadTasks(db *sqlx.DB, pageSize int, offset int) ([]api.Task, error) {
+	rows, err := db.Queryx(
+		`SELECT
+			taskid,
+			satname,
+			notbefore,
+			deadline,
+			priority
+        FROM Tasks
+        WHERE status='pending'
+        LIMIT ?
+        OFFSET ?`,
+		pageSize,
+		offset,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Jobs table: ", "error", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	tasks := []api.Task{}
+	task := api.Task{}
+	for rows.Next() {
+		err = rows.StructScan(&task)
+		if err != nil {
+			slog.Error("Failed to marshal db rows into Task struct: ", "error", err)
+			return nil, err
+		}
+
+		tasks = append(tasks, task)
+	}
+
+	sort.Slice(tasks, func(i int, j int) bool {
+		return tasks[i].Deadline < tasks[j].Deadline
+	})
+
+	return tasks, nil
 }
 
 func ReadJobs(db *sqlx.DB, pageSize int, offset int) ([]api.Job, error) {

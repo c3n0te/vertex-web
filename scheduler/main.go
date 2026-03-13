@@ -82,7 +82,7 @@ func main() {
 		}
 
 		slog.Info("Scheduling Jobs")
-		jobs, err := Schedule(tasks, passes, 1000)
+		jobs, err := Schedule(tasks, passes, 10000)
 		if err != nil {
 			slog.Error("Failed to schedule jobs", "error", err)
 			Wait(calcPeriod)
@@ -105,6 +105,8 @@ func main() {
 			continue
 		}
 
+		slog.Info("Updating Tasks")
+		err = UpdateTasks(db, tasks, jobs)
 		slog.Info("Deleting Engine Notifications")
 		err = DeleteEngineNotifications(db)
 		if err != nil {

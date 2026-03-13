@@ -4,6 +4,7 @@ import (
 	"time"
 	"vertex/ui/components/calendar"
 	"vertex/ui/components/datepicker"
+	"vertex/ui/components/dropdown"
 	"vertex/ui/components/popover"
 	"vertex/ui/components/selectbox"
 	"vertex/ui/components/textarea"
@@ -43,6 +44,7 @@ templ Header(isLoggedIn bool) {
 		@popover.Script()
 		@selectbox.Script()
 		@textarea.Script()
+		@dropdown.Script()
 		@modules.Navbar(isLoggedIn)
 	</head>
 }

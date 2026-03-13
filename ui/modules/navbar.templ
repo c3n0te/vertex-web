@@ -2,6 +2,7 @@ package modules
 
 import (
 	"vertex/ui/components/button"
+	"vertex/ui/components/dropdown"
 	"vertex/ui/components/icon"
 )
 
@@ -9,42 +10,96 @@ templ Navbar(isLoggedIn bool) {
 	<nav class="">
 		<div class="px-6 py-2 flex justify-between items-center relative border-b">
 			<div class="flex items-center">
-				<!-- @NavbarMobileMenu() -->
 				<a href="/" class="flex items-center gap-1.5">
 					@icon.Rocket(icon.Props{Class: "w-4 h-4"})
 					<span class="text-xl">Vertex</span>
 				</a>
 			</div>
-			<div class="flex gap-1 justify-end items-center">
-				if isLoggedIn {
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Href:    "/dashboard",
-					}) {
-						Dashboard
-					}
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Href:    "/plan",
-					}) {
-						Plan
-					}
-					@button.Button(button.Props{
-						Variant: button.VariantGhost,
-						Href:    "/schedule",
-					}) {
-						Schedule
-					}
-				}
+			<div class="">
 				@ThemeSwitcher()
-				if !isLoggedIn {
-					@button.Button(button.Props{
-						Href: "/auth/login",
+				@dropdown.Dropdown() {
+					@dropdown.Trigger() {
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+						}) {
+							@icon.Menu()
+						}
+					}
+					@dropdown.Content(dropdown.ContentProps{
+						Class: "w-56",
 					}) {
-						Sign-in
+						@dropdown.Label() {
+							Navigation
+						}
+						@dropdown.Separator()
+						if isLoggedIn {
+							@dropdown.Group() {
+								@dropdown.Item(dropdown.ItemProps{
+									Href: "/dashboard",
+								}) {
+									Dashboard
+								}
+								@dropdown.Item(dropdown.ItemProps{
+									Href: "/plan",
+								}) {
+									Plan
+								}
+								@dropdown.Item(dropdown.ItemProps{
+									Href: "/pending",
+								}) {
+									Pending
+								}
+								@dropdown.Item(dropdown.ItemProps{
+									Href: "/schedule",
+								}) {
+									Schedule
+								}
+							}
+							@dropdown.Separator()
+							@dropdown.Item(dropdown.ItemProps{
+								Href:   "",
+								Target: "_blank",
+							}) {
+								<span class="flex items-center">
+									@icon.Settings(icon.Props{Class: "size-4 mr-2"})
+									Settings
+								</span>
+							}
+							@dropdown.Item() {
+								<span class="flex items-center">
+									@icon.LifeBuoy(icon.Props{Class: "size-4 mr-2"})
+									Support
+								</span>
+							}
+							@dropdown.Separator()
+							@dropdown.Item(dropdown.ItemProps{
+								Href: "/auth/logout",
+							}) {
+								<span class="flex items-center">
+									@icon.LogOut(icon.Props{Class: "size-4 mr-2"})
+									Log out
+								</span>
+							}
+						} else {
+							@dropdown.Item(dropdown.ItemProps{
+								Href: "/auth/login",
+							}) {
+								<span class="flex items-center">
+									@icon.LogIn(icon.Props{Class: "size-4 mr-2"})
+									Login
+								</span>
+							}
+						}
 					}
 				}
 			</div>
+			if !isLoggedIn {
+				@button.Button(button.Props{
+					Href: "/auth/login",
+				}) {
+					Sign-in
+				}
+			}
 		</div>
 	</nav>
 }

@@ -156,6 +156,7 @@ func InsertTask(db *sqlx.DB, form url.Values) error {
 		NotBefore: notb_date.UTC().Format(time.RFC3339),
 		Deadline:  dead_date.UTC().Format(time.RFC3339),
 		Priority:  uint8(priority),
+		Status:    "pending",
 	}
 
 	tx, err := db.Beginx()
@@ -166,9 +167,9 @@ func InsertTask(db *sqlx.DB, form url.Values) error {
 	defer tx.Rollback()
 	_, err = tx.NamedExec(
 		`INSERT INTO Tasks
-		(taskid, plan, satname, notbefore, deadline, priority)
+		(taskid, plan, satname, notbefore, deadline, priority, status)
 		VALUES
-		(:taskid, :plan, :satname, :notbefore, :deadline, :priority)`,
+		(:taskid, :plan, :satname, :notbefore, :deadline, :priority, :status)`,
 		&task,
 	)
 

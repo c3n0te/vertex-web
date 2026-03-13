@@ -39,6 +39,7 @@ func Migrate(db *sqlx.DB) {
         notbefore       TEXT NOT NULL,
         deadline        TEXT NOT NULL,
         priority        INTEGER NOT NULL,
+        Status			TEXT NOT NULL,
         FOREIGN KEY(satname) REFERENCES Satellites(satname)
     );
 
