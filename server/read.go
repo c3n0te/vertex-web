@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"net/url"
+	"sort"
 	"vertex/api"
 
 	"github.com/alexedwards/argon2id"
@@ -64,6 +65,10 @@ func ReadJobs(db *sqlx.DB, pageSize int, offset int) ([]api.Job, error) {
 
 		jobs = append(jobs, job)
 	}
+
+	sort.Slice(jobs, func(i int, j int) bool {
+		return jobs[i].AOS < jobs[j].AOS
+	})
 
 	return jobs, nil
 }

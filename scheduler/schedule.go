@@ -80,9 +80,9 @@ func MakeMaps(stnSet map[uuid.UUID]struct{}, satSet map[string]struct{}) (map[uu
 func MakeGraph(tasks []api.Task, passes []api.Pass) (map[api.Task][]api.Pass, error) {
 	numTasks := len(tasks)
 	numPasses := len(passes)
-	C := map[api.Task][]api.Pass{}
+	G := map[api.Task][]api.Pass{}
 	for _, task := range tasks {
-		C[task] = []api.Pass{}
+		G[task] = []api.Pass{}
 	}
 
 	for i := range numTasks {
@@ -112,12 +112,12 @@ func MakeGraph(tasks []api.Task, passes []api.Pass) (map[api.Task][]api.Pass, er
 			}
 
 			if tasks[i].SatName == passes[j].SatName && aos.After(notbDate) && los.Before(deadDate) {
-				C[tasks[i]] = append(C[tasks[i]], passes[j])
+				G[tasks[i]] = append(G[tasks[i]], passes[j])
 			}
 		}
 	}
 
-	return C, nil
+	return G, nil
 }
 
 func CheckNonzero(row []uint8, t0 int, tf int) bool {
@@ -130,7 +130,7 @@ func CheckNonzero(row []uint8, t0 int, tf int) bool {
 	return false
 }
 
-func SetOne(row []uint8, t0, tf int) {
+func SetOne(row []uint8, t0 int, tf int) {
 	for i := t0; i < tf; i++ {
 		row[i] = 1
 	}
@@ -138,6 +138,10 @@ func SetOne(row []uint8, t0, tf int) {
 
 func Schedule(tasks []api.Task, passes []api.Pass, maxIter int) ([]api.Job, error) {
 	sort.Slice(tasks, func(i int, j int) bool {
+		if tasks[i].Priority == tasks[j].Priority {
+			return tasks[i].Deadline < tasks[j].Deadline
+		}
+
 		return tasks[i].Priority > tasks[j].Priority
 	})
 

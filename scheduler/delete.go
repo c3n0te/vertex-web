@@ -27,3 +27,23 @@ func DeleteEngineNotifications(db *sqlx.DB) error {
 
 	return tx.Commit()
 }
+
+func DeleteJobs(db *sqlx.DB) error {
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	_, err = tx.Exec(
+		`DELETE FROM Jobs`,
+	)
+
+	if err != nil {
+		slog.Error("Failed to delete jobs: ", "error", err)
+		return err
+	}
+
+	return tx.Commit()
+}

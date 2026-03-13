@@ -89,7 +89,15 @@ func main() {
 			continue
 		}
 
-		slog.Info("Inserting Jobs")
+		slog.Info("Deleting old Jobs")
+		err = DeleteJobs(db)
+		if err != nil {
+			slog.Error("Failed to insert jobs", "error", err)
+			Wait(calcPeriod)
+			continue
+		}
+
+		slog.Info("Inserting new Jobs")
 		err = InsertJobs(db, jobs)
 		if err != nil {
 			slog.Error("Failed to insert jobs", "error", err)

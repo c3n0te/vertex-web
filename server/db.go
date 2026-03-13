@@ -115,37 +115,31 @@ func Migrate(db *sqlx.DB) {
 
     CREATE TRIGGER IF NOT EXISTS pass_insert_trigger AFTER INSERT ON Passes
     BEGIN
-        DELETE FROM Jobs;
         INSERT INTO Notifications (service) VALUES ('engine');
     END;
 
     CREATE TRIGGER IF NOT EXISTS pass_update_trigger AFTER UPDATE ON Passes
     BEGIN
-        DELETE FROM Jobs;
         INSERT INTO Notifications (service) VALUES ('engine');
     END;
 
     CREATE TRIGGER IF NOT EXISTS pass_delete_trigger AFTER DELETE ON Passes
     BEGIN
-        DELETE FROM Jobs;
         INSERT INTO Notifications (service) VALUES ('engine');
     END;
 
     CREATE TRIGGER IF NOT EXISTS task_insert_trigger AFTER INSERT ON Tasks
     BEGIN
-        DELETE FROM Jobs;
         INSERT INTO Notifications (service) VALUES ('engine');
     END;
 
     CREATE TRIGGER IF NOT EXISTS task_update_trigger AFTER UPDATE ON Tasks
     BEGIN
-        DELETE FROM Jobs;
         INSERT INTO Notifications (service) VALUES ('engine');
     END;
 
     CREATE TRIGGER IF NOT EXISTS task_delete_trigger AFTER DELETE ON Tasks
     BEGIN
-        DELETE FROM Jobs;
         INSERT INTO Notifications (service) VALUES ('engine');
     END;
 

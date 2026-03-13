@@ -23,7 +23,7 @@ air:
 	air \
     --build.cmd "go build -race -ldflags '-s -w' -o ./bin ./server/" \
     --build.entrypoint "./bin/server" \
-    --build.delay "100" \
+    --build.delay "50" \
     --build.exclude_dir "node_modules" \
     --build.include_ext "go" \
     --build.stop_on_error "false" \

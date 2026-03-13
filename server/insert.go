@@ -20,8 +20,14 @@ func InsertSats(db *sqlx.DB) error {
 		return err
 	}
 
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
 	for _, sat := range sats {
-		_, err := db.NamedExec(
+		_, err := tx.NamedExec(
 			`INSERT INTO Satellites
 			(noradid, satname, status, line1, line2)
 			VALUES
@@ -36,7 +42,7 @@ func InsertSats(db *sqlx.DB) error {
 	}
 
 	slog.Info("Satellites inserted into DB")
-	return nil
+	return tx.Commit()
 }
 
 func InsertStns(db *sqlx.DB) error {
@@ -46,8 +52,14 @@ func InsertStns(db *sqlx.DB) error {
 		return err
 	}
 
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
 	for _, stn := range stns {
-		_, err := db.NamedExec(
+		_, err := tx.NamedExec(
 			`INSERT INTO Stations
 			(stnid, stnname, latitude, longitude, altitude, minhorizon, status)
 			VALUES
@@ -62,7 +74,7 @@ func InsertStns(db *sqlx.DB) error {
 	}
 
 	slog.Info("Stations inserted into DB")
-	return nil
+	return tx.Commit()
 }
 
 func InsertUser(db *sqlx.DB, form url.Values) error {
@@ -88,7 +100,13 @@ func InsertUser(db *sqlx.DB, form url.Values) error {
 		Password: hash_pass,
 	}
 
-	_, err = db.NamedExec(
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+	_, err = tx.NamedExec(
 		`INSERT INTO Users
 		(userid, username, email, password)
 		VALUES
@@ -102,7 +120,7 @@ func InsertUser(db *sqlx.DB, form url.Values) error {
 	}
 
 	slog.Info("User inserted into db.")
-	return nil
+	return tx.Commit()
 }
 
 func InsertTask(db *sqlx.DB, form url.Values) error {
@@ -140,7 +158,13 @@ func InsertTask(db *sqlx.DB, form url.Values) error {
 		Priority:  uint8(priority),
 	}
 
-	_, err = db.NamedExec(
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+	_, err = tx.NamedExec(
 		`INSERT INTO Tasks
 		(taskid, plan, satname, notbefore, deadline, priority)
 		VALUES
@@ -154,5 +178,5 @@ func InsertTask(db *sqlx.DB, form url.Values) error {
 	}
 
 	slog.Info("Task inserted into DB")
-	return nil
+	return tx.Commit()
 }
