@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func UpdateTasks(db *sqlx.DB, tasks []api.Task, jobs []api.Job) error {
+func UpdateTasksStatus(db *sqlx.DB, tasks []api.Task, jobs []api.Job) error {
 	tx, err := db.Beginx()
 	if err != nil {
 		return err

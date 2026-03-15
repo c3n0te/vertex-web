@@ -10,6 +10,10 @@ scheduler:
 server:
 	go build -race -ldflags "-s -w" -o ./bin ./server/
 
+test:
+	go test ./server -cover
+	go test ./scheduler -cover
+
 templ:
 	go tool templ generate --watch --proxy="http://localhost:8090" --open-browser=false
 

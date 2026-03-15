@@ -16,6 +16,13 @@ templ Navbar(isLoggedIn bool) {
 				</a>
 			</div>
 			<div class="">
+				if !isLoggedIn {
+					@button.Button(button.Props{
+						Href: "/auth/login",
+					}) {
+						Sign-in
+					}
+				}
 				@ThemeSwitcher()
 				@dropdown.Dropdown() {
 					@dropdown.Trigger() {
@@ -93,13 +100,6 @@ templ Navbar(isLoggedIn bool) {
 					}
 				}
 			</div>
-			if !isLoggedIn {
-				@button.Button(button.Props{
-					Href: "/auth/login",
-				}) {
-					Sign-in
-				}
-			}
 		</div>
 	</nav>
 }

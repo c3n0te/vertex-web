@@ -12,7 +12,7 @@ import (
 
 templ SchedulePage(jobs []api.Job, page int, totalPages int, isLoggedIn bool) {
 	@layouts.BaseLayout(isLoggedIn) {
-		<div class="flex items-center justify-center m-4 overflow-hidden">
+		<div id="schedule" class="flex items-center justify-center m-4 overflow-hidden">
 			@card.Card() {
 				@table.Table() {
 					@table.Caption() {

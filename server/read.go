@@ -20,7 +20,7 @@ func ReadTaskCount(db *sqlx.DB) (int, error) {
 	)
 
 	if err != nil {
-		slog.Error("Failed to query Jobs table: ", "error", err)
+		slog.Error("Failed to count tasks: ", "error", err)
 		return 0, err
 	}
 
@@ -44,7 +44,7 @@ func ReadJobCount(db *sqlx.DB) (int, error) {
 	return count, nil
 }
 
-func ReadTasks(db *sqlx.DB, pageSize int, offset int) ([]api.Task, error) {
+func ReadPendingTasks(db *sqlx.DB, pageSize int, offset int) ([]api.Task, error) {
 	rows, err := db.Queryx(
 		`SELECT
 			taskid,

@@ -9,6 +9,7 @@ import (
 	"vertex/ui/pages"
 
 	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/jmoiron/sqlx"
 )
@@ -17,13 +18,18 @@ type Server struct {
 	Key       string
 	DB        *sqlx.DB
 	TokenAuth *jwtauth.JWTAuth
+	Router    chi.Router
 }
 
-func NewServer(key string, db *sqlx.DB, tokenAuth *jwtauth.JWTAuth) Server {
+func NewServer(key string, db *sqlx.DB) Server {
+	var tokenAuth *jwtauth.JWTAuth
+	tokenAuth = jwtauth.New("HS256", []byte(key), nil)
+
 	return Server{
 		Key:       key,
 		DB:        db,
 		TokenAuth: tokenAuth,
+		Router:    NewRouter(),
 	}
 }
 
@@ -60,6 +66,33 @@ func (srv *Server) InitDB() error {
 	return nil
 }
 
+func (srv *Server) ServeAssets() {
+	filesrv := http.FileServer(http.Dir("assets"))
+	srv.Router.Handle("/images/*", filesrv)
+	srv.Router.Handle("/css/output.css", filesrv)
+	srv.Router.Handle("/assets/*", http.StripPrefix("/assets/", filesrv))
+}
+
+func (srv *Server) MountHandlers() {
+	srv.Router.Get("/", srv.GetHome)
+	srv.Router.Get("/auth/login", srv.GetAuthLogin)
+	srv.Router.Get("/auth/sign-up", srv.GetAuthSignUp)
+	srv.Router.Post("/auth/sign-up", srv.PostAuthSignUp)
+	srv.Router.Post("/auth/login", srv.PostAuthLogin)
+	srv.Router.Get("/auth/logout", srv.GetAuthLogout)
+
+	srv.Router.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(srv.TokenAuth))
+		r.Use(jwtauth.Authenticator(srv.TokenAuth))
+		r.Get("/auth/refresh", srv.GetAuthRefresh)
+		r.Get("/dashboard", srv.GetDashboard)
+		r.Get("/plan", srv.GetPlan)
+		r.Post("/plan/submit", srv.PostPlanSubmit)
+		r.Get("/pending", srv.GetPending)
+		r.Get("/schedule", srv.GetSchedule)
+	})
+}
+
 func (srv *Server) GetHome(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
 	jwtStr, err := r.Cookie("jwt")
@@ -85,12 +118,47 @@ func (srv *Server) GetAuthLogin(w http.ResponseWriter, r *http.Request) {
 	templ.Handler(login).ServeHTTP(w, r)
 }
 
-func (srv *Server) GetSignUp(w http.ResponseWriter, r *http.Request) {
+func (srv *Server) GetAuthSignUp(w http.ResponseWriter, r *http.Request) {
 	signup := pages.SignUpPage()
 	templ.Handler(signup).ServeHTTP(w, r)
 }
 
-func (srv *Server) PostSignUp(w http.ResponseWriter, r *http.Request) {
+func (srv *Server) GetAuthRefresh(w http.ResponseWriter, r *http.Request) {
+	_, jwtStr, err := srv.TokenAuth.Encode(map[string]interface{}{})
+	if err != nil {
+		slog.Error("Failed to create JWT: ", "error", err)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt",
+		Value:    jwtStr,
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   -1,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(30 * time.Minute),
+		Path:     "/",
+	})
+}
+
+func (srv *Server) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   -1,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(-1 * time.Hour),
+		Path:     "/",
+	})
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (srv *Server) PostAuthSignUp(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		slog.Error("Failed to parse login form: ", "error", err)
@@ -110,7 +178,20 @@ func (srv *Server) PostSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, jwtStr, err := srv.TokenAuth.Encode(map[string]interface{}{})
+	user, err = ReadUser(srv.DB, r.Form)
+	if err != nil || user.Email != "" {
+		slog.Error("Failed to authenticate or user has account: ", "error", err)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	claims := map[string]interface{}{
+		"user_id": user.UserID,
+		"email":   user.Email,
+		"role":    "operator",
+	}
+
+	_, jwtStr, err := srv.TokenAuth.Encode(claims)
 	if err != nil {
 		slog.Error("Failed to create JWT: ", "error", err)
 		http.Redirect(w, r, "/auth/sign-up", http.StatusSeeOther)
@@ -123,14 +204,15 @@ func (srv *Server) PostSignUp(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(1 * time.Hour),
+		Expires:  time.Now().Add(30 * time.Minute),
 		Path:     "/",
+		MaxAge:   0,
 	})
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-func (srv *Server) PostLogin(w http.ResponseWriter, r *http.Request) {
+func (srv *Server) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		slog.Error("Failed to parse login form: ", "error", err)
@@ -143,7 +225,13 @@ func (srv *Server) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, jwtStr, err := srv.TokenAuth.Encode(map[string]interface{}{})
+	claims := map[string]interface{}{
+		"user_id": user.UserID,
+		"email":   user.Email,
+		"role":    "operator",
+	}
+
+	_, jwtStr, err := srv.TokenAuth.Encode(claims)
 	if err != nil {
 		slog.Error("Failed to create JWT: ", "error", err)
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -156,8 +244,9 @@ func (srv *Server) PostLogin(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(1 * time.Hour),
+		Expires:  time.Now().Add(30 * time.Minute),
 		Path:     "/",
+		MaxAge:   0,
 	})
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -165,18 +254,14 @@ func (srv *Server) PostLogin(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) GetDashboard(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
-	jwtStr, err := r.Cookie("jwt")
+	token, _, err := jwtauth.FromContext(r.Context())
 	if err != nil {
-		slog.Error("Failed to parse JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		slog.Error("Failed to extract claims from request context", "error", err)
 		return
 	}
 
-	isLoggedIn = ParseToken(jwtStr.Value, []byte(srv.Key))
-	if !isLoggedIn {
-		slog.Error("Invalid JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
+	if token != nil {
+		isLoggedIn = true
 	}
 
 	stns, err := ReadStns(srv.DB)
@@ -195,18 +280,14 @@ func (srv *Server) GetDashboard(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) GetPlan(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
-	jwtStr, err := r.Cookie("jwt")
+	token, _, err := jwtauth.FromContext(r.Context())
 	if err != nil {
-		slog.Error("Failed to parse JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		slog.Error("Failed to extract claims from request context", "error", err)
 		return
 	}
 
-	isLoggedIn = ParseToken(jwtStr.Value, []byte(srv.Key))
-	if !isLoggedIn {
-		slog.Error("Invalid JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
+	if token != nil {
+		isLoggedIn = true
 	}
 
 	sats, err := ReadSats(srv.DB)
@@ -234,18 +315,14 @@ func (srv *Server) PostPlanSubmit(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
-	cookie, err := r.Cookie("jwt")
+	token, _, err := jwtauth.FromContext(r.Context())
 	if err != nil {
-		slog.Error("Failed to parse JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		slog.Error("Failed to extract claims from request context", "error", err)
 		return
 	}
 
-	isLoggedIn = ParseToken(cookie.Value, []byte(srv.Key))
-	if !isLoggedIn {
-		slog.Error("Invalid JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
+	if token != nil {
+		isLoggedIn = true
 	}
 
 	pageStr := r.URL.Query().Get("page")
@@ -273,7 +350,7 @@ func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := ReadTasks(srv.DB, pageSize, offset)
+	tasks, err := ReadPendingTasks(srv.DB, pageSize, offset)
 	if err != nil {
 		slog.Error("Failed to read jobs: ", "error", err)
 		http.Redirect(w, r, "/pending", http.StatusSeeOther)
@@ -287,18 +364,14 @@ func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) GetSchedule(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
-	cookie, err := r.Cookie("jwt")
+	token, _, err := jwtauth.FromContext(r.Context())
 	if err != nil {
-		slog.Error("Failed to parse JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		slog.Error("Failed to extract claims from request context", "error", err)
 		return
 	}
 
-	isLoggedIn = ParseToken(cookie.Value, []byte(srv.Key))
-	if !isLoggedIn {
-		slog.Error("Invalid JWT: ", "error", err)
-		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
-		return
+	if token != nil {
+		isLoggedIn = true
 	}
 
 	pageStr := r.URL.Query().Get("page")

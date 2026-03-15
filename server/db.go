@@ -16,7 +16,7 @@ func Migrate(db *sqlx.DB) {
 
 	CREATE TABLE IF NOT EXISTS Stations (
     	stnid           TEXT UNIQUE PRIMARY KEY,
-    	stnname         TEXT NOT NULL,
+    	stnname         TEXT UNIQUE NOT NULL,
     	latitude        FLOAT NOT NULL,
     	longitude       FLOAT NOT NULL,
     	altitude        FLOAT NOT NULL,

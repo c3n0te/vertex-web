@@ -9,7 +9,7 @@ import (
 )
 
 templ StationsDash(stns []api.Station) {
-	<div class="grid grid-cols-2 sm:grid-cols-3 w-full h-full p-4 gap-4 items-center">
+	<div class="grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center">
 		for _, stn := range stns {
 			<div>
 				@card.Card() {
@@ -45,7 +45,7 @@ templ StationsDash(stns []api.Station) {
 }
 
 templ SatellitesDash(sats []api.Satellite) {
-	<div class="grid grid-cols-2 sm:grid-cols-3 w-full h-full p-4 gap-4 items-center">
+	<div class="grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center">
 		for _, sat := range sats {
 			<div>
 				@card.Card() {
@@ -85,10 +85,12 @@ templ SatellitesDash(sats []api.Satellite) {
 
 templ DashboardPage(stns []api.Station, sats []api.Satellite, isLoggedIn bool) {
 	@layouts.BaseLayout(isLoggedIn) {
-		<h1 class="font-bold m-4">Stations</h1>
-		@StationsDash(stns)
-		<br/>
-		<h1 class="font-bold m-4">Satellites</h1>
-		@SatellitesDash(sats)
+		<div id="dashboard">
+			<h1 class="font-bold m-4">Stations</h1>
+			@StationsDash(stns)
+			<br/>
+			<h1 class="font-bold m-4">Satellites</h1>
+			@SatellitesDash(sats)
+		</div>
 	}
 }

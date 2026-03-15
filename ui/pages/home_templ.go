@@ -43,7 +43,7 @@ func HomePage(isLoggedIn bool) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"\"><div class=\"px-6 py-24 sm:px-6 sm:py-32 lg:px-8\"><div class=\"mx-auto max-w-2xl text-center\"></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"\"><div class=\"p-6 mx-auto\"><div class=\"mx-auto max-w-2xl text-center\"><div class=\"text-5xl font-bold leading-none sm:text-6xl\"><div class=\"flex justify-center items-center\"><img src=\"/images/logo.jpg\" class=\"rounded-full max-h-75 max-w-75\"></div><h1 class=\"py-4\">Satellite Constellation Management Simulator</h1></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

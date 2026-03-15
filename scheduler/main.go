@@ -106,7 +106,13 @@ func main() {
 		}
 
 		slog.Info("Updating Tasks")
-		err = UpdateTasks(db, tasks, jobs)
+		err = UpdateTasksStatus(db, tasks, jobs)
+		if err != nil {
+			slog.Error("Failed to Update Tasks", "error", err)
+			Wait(calcPeriod)
+			continue
+		}
+
 		slog.Info("Deleting Engine Notifications")
 		err = DeleteEngineNotifications(db)
 		if err != nil {
