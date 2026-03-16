@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"vertex/ui/modules"
 	"vertex/ui/pages"
 
 	"github.com/a-h/templ"
@@ -86,10 +87,14 @@ func (srv *Server) MountHandlers() {
 		r.Use(jwtauth.Authenticator(srv.TokenAuth))
 		r.Get("/auth/refresh", srv.GetAuthRefresh)
 		r.Get("/dashboard", srv.GetDashboard)
+		r.Get("/dashboard/stations", srv.GetDashboardStations)
+		r.Get("/dashboard/satellites", srv.GetDashboardSatellites)
 		r.Get("/plan", srv.GetPlan)
 		r.Post("/plan/submit", srv.PostPlanSubmit)
 		r.Get("/pending", srv.GetPending)
+		r.Get("/pending/refersh", srv.GetPendingRefresh)
 		r.Get("/schedule", srv.GetSchedule)
+		r.Get("/schedule/refresh", srv.GetScheduleRefresh)
 	})
 }
 
@@ -252,6 +257,26 @@ func (srv *Server) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
+func (srv *Server) GetDashboardStations(w http.ResponseWriter, r *http.Request) {
+	stns, err := ReadStns(srv.DB)
+	if err != nil {
+		slog.Error("Failed to read stations: ", "error", err)
+	}
+
+	dashboard := modules.StationsDash(stns)
+	templ.Handler(dashboard).ServeHTTP(w, r)
+}
+
+func (srv *Server) GetDashboardSatellites(w http.ResponseWriter, r *http.Request) {
+	sats, err := ReadSats(srv.DB)
+	if err != nil {
+		slog.Error("Failed to read satellites: ", "error", err)
+	}
+
+	dashboard := modules.SatellitesDash(sats)
+	templ.Handler(dashboard).ServeHTTP(w, r)
+}
+
 func (srv *Server) GetDashboard(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
 	token, _, err := jwtauth.FromContext(r.Context())
@@ -362,6 +387,44 @@ func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
 	templ.Handler(pending).ServeHTTP(w, r)
 }
 
+func (srv *Server) GetPendingRefresh(w http.ResponseWriter, r *http.Request) {
+	pageStr := r.URL.Query().Get("page")
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		slog.Error("Failed to convert page to str: ", "error", err)
+		http.Redirect(w, r, "/pending", http.StatusSeeOther)
+		return
+	}
+
+	if page < 1 {
+		page = 1
+	}
+
+	pageSize := 10
+	offset := (page - 1) * pageSize
+	numTasks, err := ReadTaskCount(srv.DB)
+	if err != nil {
+		slog.Error("Failed to read jobs: ", "error", err)
+		http.Redirect(w, r, "/pending", http.StatusSeeOther)
+		return
+	}
+
+	tasks, err := ReadPendingTasks(srv.DB, pageSize, offset)
+	if err != nil {
+		slog.Error("Failed to read jobs: ", "error", err)
+		http.Redirect(w, r, "/pending", http.StatusSeeOther)
+		return
+	}
+
+	totalPages := int(math.Ceil(float64(numTasks) / float64(pageSize)))
+	pending := modules.PaginatedPendingTable(tasks, page, int(totalPages))
+	templ.Handler(pending).ServeHTTP(w, r)
+}
+
 func (srv *Server) GetSchedule(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := false
 	token, _, err := jwtauth.FromContext(r.Context())
@@ -408,5 +471,43 @@ func (srv *Server) GetSchedule(w http.ResponseWriter, r *http.Request) {
 
 	totalPages := int(math.Ceil(float64(numJobs) / float64(pageSize)))
 	schedule := pages.SchedulePage(jobs, page, int(totalPages), isLoggedIn)
+	templ.Handler(schedule).ServeHTTP(w, r)
+}
+
+func (srv *Server) GetScheduleRefresh(w http.ResponseWriter, r *http.Request) {
+	pageStr := r.URL.Query().Get("page")
+	if pageStr == "" {
+		pageStr = "1"
+	}
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		slog.Error("Failed to convert page to str: ", "error", err)
+		http.Redirect(w, r, "/schedule", http.StatusSeeOther)
+		return
+	}
+
+	if page < 1 {
+		page = 1
+	}
+
+	pageSize := 10
+	offset := (page - 1) * pageSize
+	numJobs, err := ReadJobCount(srv.DB)
+	if err != nil {
+		slog.Error("Failed to read jobs: ", "error", err)
+		http.Redirect(w, r, "/schedule", http.StatusSeeOther)
+		return
+	}
+
+	jobs, err := ReadJobs(srv.DB, pageSize, offset)
+	if err != nil {
+		slog.Error("Failed to read jobs: ", "error", err)
+		http.Redirect(w, r, "/schedule", http.StatusSeeOther)
+		return
+	}
+
+	totalPages := int(math.Ceil(float64(numJobs) / float64(pageSize)))
+	schedule := modules.PaginatedScheduleTable(jobs, page, int(totalPages))
 	templ.Handler(schedule).ServeHTTP(w, r)
 }

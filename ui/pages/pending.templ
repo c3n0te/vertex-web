@@ -1,105 +1,13 @@
 package pages
 
 import (
-	"fmt"
-	"strings"
 	"vertex/api"
-	"vertex/ui/components/card"
-	"vertex/ui/components/pagination"
-	"vertex/ui/components/table"
 	"vertex/ui/layouts"
+	"vertex/ui/modules"
 )
 
 templ PendingPage(tasks []api.Task, page int, totalPages int, isLoggedIn bool) {
 	@layouts.BaseLayout(isLoggedIn) {
-		<div id="pending" class="flex items-center justify-center m-4 overflow-hidden">
-			@card.Card() {
-				@table.Table() {
-					@table.Caption() {
-						Pending tasks.
-					}
-					@table.Header() {
-						@table.Row() {
-							@table.Head() {
-								Task
-							}
-							@table.Head() {
-								Satellite
-							}
-							@table.Head() {
-								Notbefore
-							}
-							@table.Head() {
-								Deadline
-							}
-							@table.Head() {
-								Priority
-							}
-						}
-					}
-					@table.Body() {
-						for _, task := range tasks {
-							@table.Row() {
-								@table.Cell() {
-									{ strings.Split(task.TaskID.String(), "-")[0] }
-								}
-								@table.Cell() {
-									{ task.SatName }
-								}
-								@table.Cell() {
-									{ task.NotBefore }
-								}
-								@table.Cell() {
-									{ task.Deadline }
-								}
-								@table.Cell() {
-									{ task.Priority }
-								}
-							}
-						}
-					}
-				}
-				@pagination.Pagination(pagination.Props{
-					Class: "mt-4 mx-4 justify-end",
-				}) {
-					@pagination.Content() {
-						if page <= 1 {
-							@pagination.Item() {
-								@pagination.Previous(pagination.PreviousProps{
-									Href:     fmt.Sprintf("?page=%d", page-1),
-									Label:    "Previous",
-									Disabled: true,
-								})
-							}
-						} else {
-							@pagination.Item() {
-								@pagination.Previous(pagination.PreviousProps{
-									Href:     fmt.Sprintf("?page=%d", page-1),
-									Label:    "Previous",
-									Disabled: false,
-								})
-							}
-						}
-						if page < totalPages {
-							@pagination.Item() {
-								@pagination.Next(pagination.NextProps{
-									Href:     fmt.Sprintf("?page=%d", page+1),
-									Label:    "Next",
-									Disabled: false,
-								})
-							}
-						} else {
-							@pagination.Item() {
-								@pagination.Next(pagination.NextProps{
-									Href:     fmt.Sprintf("?page=%d", page+1),
-									Label:    "Next",
-									Disabled: true,
-								})
-							}
-						}
-					}
-				}
-			}
-		</div>
+		@modules.PaginatedPendingTable(tasks, page, totalPages)
 	}
 }

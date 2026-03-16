@@ -1,117 +1,13 @@
 package pages
 
 import (
-	"fmt"
-	"strings"
 	"vertex/api"
-	"vertex/ui/components/card"
-	"vertex/ui/components/pagination"
-	"vertex/ui/components/table"
 	"vertex/ui/layouts"
+	"vertex/ui/modules"
 )
 
 templ SchedulePage(jobs []api.Job, page int, totalPages int, isLoggedIn bool) {
 	@layouts.BaseLayout(isLoggedIn) {
-		<div id="schedule" class="flex items-center justify-center m-4 overflow-hidden">
-			@card.Card() {
-				@table.Table() {
-					@table.Caption() {
-						Scheduled jobs.
-					}
-					@table.Header() {
-						@table.Row() {
-							@table.Head() {
-								Task
-							}
-							@table.Head() {
-								Station
-							}
-							@table.Head() {
-								Satellite
-							}
-							@table.Head() {
-								Azimuth
-							}
-							@table.Head() {
-								Elevation
-							}
-							@table.Head() {
-								AOS
-							}
-							@table.Head() {
-								LOS
-							}
-						}
-					}
-					@table.Body() {
-						for _, job := range jobs {
-							@table.Row() {
-								@table.Cell() {
-									{ strings.Split(job.TaskID.String(), "-")[0] }
-								}
-								@table.Cell() {
-									{ job.StnName }
-								}
-								@table.Cell() {
-									{ job.SatName }
-								}
-								@table.Cell() {
-									{ fmt.Sprintf("%.2f", job.Azimuth) }
-								}
-								@table.Cell() {
-									{ fmt.Sprintf("%.2f",job.Elevation) }
-								}
-								@table.Cell() {
-									{ fmt.Sprintf("%v UTC", strings.Split(job.AOS, ".")[0]) }
-								}
-								@table.Cell() {
-									{ fmt.Sprintf("%v UTC", strings.Split(job.LOS, ".")[0]) }
-								}
-							}
-						}
-					}
-				}
-				@pagination.Pagination(pagination.Props{
-					Class: "mt-4 mx-4 justify-end",
-				}) {
-					@pagination.Content() {
-						if page <= 1 {
-							@pagination.Item() {
-								@pagination.Previous(pagination.PreviousProps{
-									Href:     fmt.Sprintf("?page=%d", page-1),
-									Label:    "Previous",
-									Disabled: true,
-								})
-							}
-						} else {
-							@pagination.Item() {
-								@pagination.Previous(pagination.PreviousProps{
-									Href:     fmt.Sprintf("?page=%d", page-1),
-									Label:    "Previous",
-									Disabled: false,
-								})
-							}
-						}
-						if page < totalPages {
-							@pagination.Item() {
-								@pagination.Next(pagination.NextProps{
-									Href:     fmt.Sprintf("?page=%d", page+1),
-									Label:    "Next",
-									Disabled: false,
-								})
-							}
-						} else {
-							@pagination.Item() {
-								@pagination.Next(pagination.NextProps{
-									Href:     fmt.Sprintf("?page=%d", page+1),
-									Label:    "Next",
-									Disabled: true,
-								})
-							}
-						}
-					}
-				}
-			}
-		</div>
+		@modules.PaginatedScheduleTable(jobs, page, totalPages)
 	}
 }

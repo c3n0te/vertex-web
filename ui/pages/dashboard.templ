@@ -2,95 +2,18 @@ package pages
 
 import (
 	"vertex/api"
-	"vertex/ui/components/badge"
-	"vertex/ui/components/button"
-	"vertex/ui/components/card"
 	"vertex/ui/layouts"
+	"vertex/ui/modules"
 )
-
-templ StationsDash(stns []api.Station) {
-	<div class="grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center">
-		for _, stn := range stns {
-			<div>
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							{ stn.StnName }
-						}
-						if stn.Status == "online" {
-							@badge.Badge(badge.Props{
-								Class: "bg-green-500",
-							}) {
-								Online
-							}
-						} else {
-							@badge.Badge(badge.Props{
-								Class: "bg-red-500",
-							}) {
-								Offline
-							}
-						}
-					}
-					@card.Content() {
-					}
-					@card.Footer() {
-						@button.Button() {
-							Info
-						}
-					}
-				}
-			</div>
-		}
-	</div>
-}
-
-templ SatellitesDash(sats []api.Satellite) {
-	<div class="grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center">
-		for _, sat := range sats {
-			<div>
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							{ sat.NoradID }
-						}
-						@card.Description() {
-							{ sat.SatName }
-						}
-						if sat.Status == "online" {
-							@badge.Badge(badge.Props{
-								Class: "bg-green-500",
-							}) {
-								Online
-							}
-						} else {
-							@badge.Badge(badge.Props{
-								Class: "bg-red-500",
-							}) {
-								Offline
-							}
-						}
-					}
-					@card.Content() {
-					}
-					@card.Footer() {
-						@button.Button() {
-							Info
-						}
-					}
-				}
-			</div>
-		}
-	</div>
-}
 
 templ DashboardPage(stns []api.Station, sats []api.Satellite, isLoggedIn bool) {
 	@layouts.BaseLayout(isLoggedIn) {
 		<div id="dashboard">
 			<h1 class="font-bold m-4">Stations</h1>
-			@StationsDash(stns)
+			@modules.StationsDash(stns)
 			<br/>
 			<h1 class="font-bold m-4">Satellites</h1>
-			@SatellitesDash(sats)
+			@modules.SatellitesDash(sats)
 		</div>
 	}
 }
