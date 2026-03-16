@@ -92,7 +92,7 @@ func (srv *Server) MountHandlers() {
 		r.Get("/plan", srv.GetPlan)
 		r.Post("/plan/submit", srv.PostPlanSubmit)
 		r.Get("/pending", srv.GetPending)
-		r.Get("/pending/refersh", srv.GetPendingRefresh)
+		r.Get("/pending/refresh", srv.GetPendingRefresh)
 		r.Get("/schedule", srv.GetSchedule)
 		r.Get("/schedule/refresh", srv.GetScheduleRefresh)
 	})
