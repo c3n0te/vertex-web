@@ -1,0 +1,13 @@
+package pages
+
+import (
+	"vertex/api"
+	"vertex/ui/layouts"
+	"vertex/ui/modules"
+)
+
+templ SatellitePage(sat *api.Satellite, isLoggedIn bool) {
+	@layouts.BaseLayout(isLoggedIn) {
+		@modules.Satellite(sat)
+	}
+}

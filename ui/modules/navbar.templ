@@ -35,12 +35,13 @@ templ Navbar(isLoggedIn bool) {
 					@dropdown.Content(dropdown.ContentProps{
 						Class: "w-56",
 					}) {
-						@dropdown.Label() {
-							Navigation
-						}
-						@dropdown.Separator()
 						if isLoggedIn {
 							@dropdown.Group() {
+								@dropdown.Item(dropdown.ItemProps{
+									Href: "/",
+								}) {
+									Home
+								}
 								@dropdown.Item(dropdown.ItemProps{
 									Href: "/dashboard",
 								}) {

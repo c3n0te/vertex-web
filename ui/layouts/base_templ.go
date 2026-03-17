@@ -41,14 +41,14 @@ func Footer() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"\"><footer class=\"\"><div class=\"mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8\"><nav class=\"-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6\" aria-label=\"Footer\"><a href=\"/\" class=\"\">Home</a> <a href=\"/dashboard\" class=\"\">Dashboard</a> <a href=\"/plan\" class=\"\">Plan</a> <a href=\"/schedule\" class=\"\">Schedule</a></nav><p class=\"mt-10 text-center text-sm/6 text-gray-600\">&copy; ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"\"><footer class=\"\"><div class=\"mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8\"><nav class=\"-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6\" aria-label=\"Footer\"><a href=\"/\" class=\"\">Home</a> <a href=\"/dashboard\" class=\"\">Dashboard</a> <a href=\"/plan\" class=\"\">Plan</a> <a href=\"/pending\" class=\"\">Pending</a> <a href=\"/schedule\" class=\"\">Schedule</a></nav><p class=\"mt-10 text-center text-sm/6 text-gray-600\">&copy; ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(time.Now().Year())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/layouts/base.templ`, Line: 26, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/layouts/base.templ`, Line: 27, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {

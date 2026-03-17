@@ -10,7 +10,7 @@ import (
 )
 
 templ PaginatedScheduleTable(jobs []api.Job, page int, totalPages int) {
-	<div hx-get="/schedule/refresh" hx-trigger="every 3s" hx-swap="outerHTML" id="schedule" class="flex items-center justify-center m-4 overflow-hidden">
+	<div hx-get={ fmt.Sprintf("/schedule/refresh?page=%v", page) } hx-trigger="every 3s" hx-swap="outerHTML" id="schedule" class="flex items-center justify-center m-4 overflow-hidden">
 		@card.Card() {
 			@table.Table() {
 				@table.Caption() {
@@ -114,7 +114,7 @@ templ PaginatedScheduleTable(jobs []api.Job, page int, totalPages int) {
 }
 
 templ PaginatedPendingTable(tasks []api.Task, page int, totalPages int) {
-	<div hx-get="pending/refresh" hx-trigger="every 3s" hx-swap="outerHTML" id="pending" class="flex items-center justify-center m-4 overflow-hidden">
+	<div hx-get={ fmt.Sprintf("/pending/refresh?page=%v", page) } hx-trigger="every 3s" hx-swap="outerHTML" id="pending" class="flex items-center justify-center m-4 overflow-hidden">
 		@card.Card() {
 			@table.Table() {
 				@table.Caption() {

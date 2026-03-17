@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"math"
 	"net/http"
@@ -85,10 +86,12 @@ func (srv *Server) MountHandlers() {
 	srv.Router.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(srv.TokenAuth))
 		r.Use(jwtauth.Authenticator(srv.TokenAuth))
-		r.Get("/auth/refresh", srv.GetAuthRefresh)
+		r.Post("/auth/refresh", srv.PostAuthRefresh)
+		r.Get("/dashboard/stations/{stnname}", srv.GetDashboardStationByName)
+		r.Get("/dashboard/satellites/{noradid}", srv.GetDashboardSatelliteById)
 		r.Get("/dashboard", srv.GetDashboard)
-		r.Get("/dashboard/stations", srv.GetDashboardStations)
-		r.Get("/dashboard/satellites", srv.GetDashboardSatellites)
+		r.Get("/dashboard/stations/refresh", srv.GetDashboardStations)
+		r.Get("/dashboard/satellites/refresh", srv.GetDashboardSatellites)
 		r.Get("/plan", srv.GetPlan)
 		r.Post("/plan/submit", srv.PostPlanSubmit)
 		r.Get("/pending", srv.GetPending)
@@ -128,24 +131,16 @@ func (srv *Server) GetAuthSignUp(w http.ResponseWriter, r *http.Request) {
 	templ.Handler(signup).ServeHTTP(w, r)
 }
 
-func (srv *Server) GetAuthRefresh(w http.ResponseWriter, r *http.Request) {
-	_, jwtStr, err := srv.TokenAuth.Encode(map[string]interface{}{})
+func (srv *Server) PostAuthRefresh(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("jwt")
 	if err != nil {
-		slog.Error("Failed to create JWT: ", "error", err)
+		slog.Error("Failed to get existing cookie: ", "error", err)
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt",
-		Value:    jwtStr,
-		HttpOnly: true,
-		Secure:   true,
-		MaxAge:   -1,
-		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(30 * time.Minute),
-		Path:     "/",
-	})
+	cookie.Expires = time.Now().Add(30 * time.Minute)
+	http.SetCookie(w, cookie)
 }
 
 func (srv *Server) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +150,7 @@ func (srv *Server) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		MaxAge:   -1,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Now().Add(-1 * time.Hour),
 		Path:     "/",
 	})
@@ -166,7 +161,7 @@ func (srv *Server) GetAuthLogout(w http.ResponseWriter, r *http.Request) {
 func (srv *Server) PostAuthSignUp(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		slog.Error("Failed to parse login form: ", "error", err)
+		slog.Error("Failed to parse signup form: ", "error", err)
 	}
 
 	user, err := ReadUser(srv.DB, r.Form)
@@ -208,7 +203,7 @@ func (srv *Server) PostAuthSignUp(w http.ResponseWriter, r *http.Request) {
 		Value:    jwtStr,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Now().Add(30 * time.Minute),
 		Path:     "/",
 		MaxAge:   0,
@@ -248,13 +243,68 @@ func (srv *Server) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 		Value:    jwtStr,
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Now().Add(30 * time.Minute),
 		Path:     "/",
 		MaxAge:   0,
 	})
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (srv *Server) GetDashboardStationByName(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := false
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		slog.Error("Failed to extract claims from request context", "error", err)
+		return
+	}
+
+	if token != nil {
+		isLoggedIn = true
+	}
+
+	stnname := chi.URLParam(r, "stnname")
+	if stnname == "" {
+		slog.Error("Failed to get stnname from URL")
+		return
+	}
+
+	stn, err := ReadStnWhereName(srv.DB, stnname)
+	if err != nil {
+		slog.Error("Failed to retrieve station", "error", err)
+		return
+	}
+
+	stnpage := pages.StationPage(stn, isLoggedIn)
+	templ.Handler(stnpage).ServeHTTP(w, r)
+}
+
+func (srv *Server) GetDashboardSatelliteById(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := false
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		slog.Error("Failed to extract claims from request context", "error", err)
+		return
+	}
+
+	if token != nil {
+		isLoggedIn = true
+	}
+
+	noradid := chi.URLParam(r, "noradid")
+	if noradid == "" {
+		slog.Error("Failed to get noradid from URL")
+	}
+
+	sat, err := ReadSatWhereNoradid(srv.DB, noradid)
+	if err != nil {
+		slog.Error("Failed to retrieve satellite", "error", err)
+		return
+	}
+
+	satpage := pages.SatellitePage(sat, isLoggedIn)
+	templ.Handler(satpage).ServeHTTP(w, r)
 }
 
 func (srv *Server) GetDashboardStations(w http.ResponseWriter, r *http.Request) {
@@ -368,13 +418,14 @@ func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
 
 	pageSize := 10
 	offset := (page - 1) * pageSize
-	numTasks, err := ReadTaskCount(srv.DB)
+	numPendingTasks, err := ReadPendingTaskCount(srv.DB)
 	if err != nil {
 		slog.Error("Failed to read jobs: ", "error", err)
 		http.Redirect(w, r, "/pending", http.StatusSeeOther)
 		return
 	}
 
+	slog.Info(fmt.Sprintf("pending tasks: %v", numPendingTasks))
 	tasks, err := ReadPendingTasks(srv.DB, pageSize, offset)
 	if err != nil {
 		slog.Error("Failed to read jobs: ", "error", err)
@@ -382,8 +433,8 @@ func (srv *Server) GetPending(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	totalPages := int(math.Ceil(float64(numTasks) / float64(pageSize)))
-	pending := pages.PendingPage(tasks, page, int(totalPages), isLoggedIn)
+	totalPages := int(math.Ceil(float64(numPendingTasks) / float64(pageSize)))
+	pending := pages.PendingPage(tasks, page, totalPages, isLoggedIn)
 	templ.Handler(pending).ServeHTTP(w, r)
 }
 
@@ -406,7 +457,7 @@ func (srv *Server) GetPendingRefresh(w http.ResponseWriter, r *http.Request) {
 
 	pageSize := 10
 	offset := (page - 1) * pageSize
-	numTasks, err := ReadTaskCount(srv.DB)
+	numPendingTasks, err := ReadPendingTaskCount(srv.DB)
 	if err != nil {
 		slog.Error("Failed to read jobs: ", "error", err)
 		http.Redirect(w, r, "/pending", http.StatusSeeOther)
@@ -420,8 +471,8 @@ func (srv *Server) GetPendingRefresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	totalPages := int(math.Ceil(float64(numTasks) / float64(pageSize)))
-	pending := modules.PaginatedPendingTable(tasks, page, int(totalPages))
+	totalPages := int(math.Ceil(float64(numPendingTasks) / float64(pageSize)))
+	pending := modules.PaginatedPendingTable(tasks, page, totalPages)
 	templ.Handler(pending).ServeHTTP(w, r)
 }
 
@@ -470,7 +521,7 @@ func (srv *Server) GetSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalPages := int(math.Ceil(float64(numJobs) / float64(pageSize)))
-	schedule := pages.SchedulePage(jobs, page, int(totalPages), isLoggedIn)
+	schedule := pages.SchedulePage(jobs, page, totalPages, isLoggedIn)
 	templ.Handler(schedule).ServeHTTP(w, r)
 }
 
@@ -508,6 +559,6 @@ func (srv *Server) GetScheduleRefresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalPages := int(math.Ceil(float64(numJobs) / float64(pageSize)))
-	schedule := modules.PaginatedScheduleTable(jobs, page, int(totalPages))
+	schedule := modules.PaginatedScheduleTable(jobs, page, totalPages)
 	templ.Handler(schedule).ServeHTTP(w, r)
 }

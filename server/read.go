@@ -10,13 +10,74 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func ReadTaskCount(db *sqlx.DB) (int, error) {
+func ReadStnWhereName(db *sqlx.DB, stnname string) (*api.Station, error) {
+	rows, err := db.Queryx(
+		`SELECT
+			stnid,
+			stnname,
+			latitude,
+			longitude,
+			altitude,
+			minhorizon,
+			status
+        FROM Stations
+        WHERE stnname=?
+        LIMIT 1`,
+		stnname,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Stations table: ", "error", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	stn := api.Station{}
+
+	for rows.Next() {
+		err = rows.StructScan(&stn)
+	}
+
+	return &stn, nil
+}
+
+func ReadSatWhereNoradid(db *sqlx.DB, noradid string) (*api.Satellite, error) {
+	rows, err := db.Queryx(
+		`SELECT
+      		noradid,
+        	satname,
+         	status,
+          	line1,
+           	line2
+        FROM Satellites
+        WHERE noradid=?
+        LIMIT 1`,
+		noradid,
+	)
+
+	if err != nil {
+		slog.Error("Failed to query Satellites table: ", "error", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	sat := api.Satellite{}
+
+	for rows.Next() {
+		err = rows.StructScan(&sat)
+	}
+
+	return &sat, nil
+}
+
+func ReadPendingTaskCount(db *sqlx.DB) (int, error) {
 	var count int
 	err := db.Get(
 		&count,
 		`SELECT
 			COUNT(*)
-        FROM Tasks`,
+        FROM Tasks
+        WHERE status='pending'`,
 	)
 
 	if err != nil {

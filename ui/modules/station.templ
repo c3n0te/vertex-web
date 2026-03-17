@@ -1,0 +1,33 @@
+package modules
+
+import (
+	"vertex/api"
+	"vertex/ui/components/card"
+)
+
+templ Station(stn *api.Station) {
+	<div class="flex m-4 items-center justify-center">
+		@card.Card() {
+			@card.Title(card.TitleProps{
+				Class: "m-4",
+			}) {
+				Station
+			}
+			@card.Content() {
+				Name: { stn.StnName }
+			}
+			@card.Content() {
+				Status: { stn.Status }
+			}
+			@card.Content() {
+				Latitude: { stn.Latitude }
+			}
+			@card.Content() {
+				Longitude: { stn.Longitude }
+			}
+			@card.Content() {
+				Altitude: { stn.Altitude }
+			}
+		}
+	</div>
+}

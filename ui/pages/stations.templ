@@ -1,0 +1,13 @@
+package pages
+
+import (
+	"vertex/api"
+	"vertex/ui/layouts"
+	"vertex/ui/modules"
+)
+
+templ StationPage(stn *api.Station, isLoggedIn bool) {
+	@layouts.BaseLayout(isLoggedIn) {
+		@modules.Station(stn)
+	}
+}

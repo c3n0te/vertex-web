@@ -1,0 +1,33 @@
+package modules
+
+import (
+	"vertex/api"
+	"vertex/ui/components/card"
+)
+
+templ Satellite(sat *api.Satellite) {
+	<div class="flex m-4 items-center justify-center">
+		@card.Card() {
+			@card.Title(card.TitleProps{
+				Class: "m-4",
+			}) {
+				Satellite
+			}
+			@card.Content() {
+				Norad ID: { sat.NoradID }
+			}
+			@card.Content() {
+				Name: { sat.SatName }
+			}
+			@card.Content() {
+				Status: { sat.Status }
+			}
+			@card.Content() {
+				Line 1: { sat.Line1 }
+			}
+			@card.Content() {
+				Line 2: { sat.Line2 }
+			}
+		}
+	</div>
+}

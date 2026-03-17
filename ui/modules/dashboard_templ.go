@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
 	"vertex/api"
 	"vertex/ui/components/badge"
 	"vertex/ui/components/button"
@@ -36,7 +37,7 @@ func StationsDash(stns []api.Station) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div hx-get=\"/dashboard/stations\" hx-trigger=\"every 5s\" hx-swap=\"outerHTML\" class=\"grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div hx-get=\"/dashboard/stations/refresh\" hx-trigger=\"every 5s\" hx-swap=\"outerHTML\" class=\"grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -84,7 +85,7 @@ func StationsDash(stns []api.Station) templ.Component {
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(stn.StnName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/modules/dashboard.templ`, Line: 17, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/modules/dashboard.templ`, Line: 18, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -213,7 +214,9 @@ func StationsDash(stns []api.Station) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = button.Button().Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = button.Button(button.Props{
+						Href: fmt.Sprintf("/dashboard/stations/%v", stn.StnName),
+					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -263,7 +266,7 @@ func SatellitesDash(sats []api.Satellite) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div hx-get=\"/dashboard/satellites\" hx-trigger=\"every 5s\" hx-swap=\"outerHTML\" class=\"grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div hx-get=\"/dashboard/satellites/refresh\" hx-trigger=\"every 5s\" hx-swap=\"outerHTML\" class=\"grid grid-cols-2 sm:grid-cols-3 p-4 gap-4 items-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -311,7 +314,7 @@ func SatellitesDash(sats []api.Satellite) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(sat.NoradID)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/modules/dashboard.templ`, Line: 53, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/modules/dashboard.templ`, Line: 56, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -342,7 +345,7 @@ func SatellitesDash(sats []api.Satellite) templ.Component {
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(sat.SatName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/modules/dashboard.templ`, Line: 56, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/modules/dashboard.templ`, Line: 59, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -471,7 +474,9 @@ func SatellitesDash(sats []api.Satellite) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = button.Button().Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = button.Button(button.Props{
+						Href: fmt.Sprintf("/dashboard/satellites/%v", sat.NoradID),
+					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
